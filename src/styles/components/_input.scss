@@ -1,0 +1,16 @@
+.ui-inputtext {
+  width: 100%;
+}
+
+.ui-dropdown {
+  width: 100%;
+  padding: 0.2rem;
+}
+
+body .ui-calendar {
+  .ui-datepicker {
+    padding: 0;
+    min-width: auto;
+    top: auto !important;
+  }
+}

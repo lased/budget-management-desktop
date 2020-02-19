@@ -1,0 +1,34 @@
+<div [formGroup]="form">
+  <p-selectButton [options]="types" formControlName="type" (onChange)="changeType($event.value)" styleClass="p-grid">
+  </p-selectButton>
+  <div class="p-grid">
+    <div class="p-col-6">
+      <ng-container *ngTemplateOutlet="list;context:{list:categories,parent:true}"></ng-container>
+    </div>
+    <div class="p-col-6">
+      <ng-container *ngTemplateOutlet="list;context:{list:subcategories,parent:false}">
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<ng-template #list let-parent="parent" let-categories="list">
+  <p-listbox [options]="categories" [listStyle]="{'height': 'calc(100vh - 200px)'}" [(ngModel)]="parent ? category : subcategory"
+    (onChange)="selectedCategory($event.value)">
+    <ng-template let-category pTemplate="item">
+      {{ category.label }}
+    </ng-template>
+  </p-listbox>
+  <div class="p-grid p-justify-around">
+    <p-button label="Добавить" styleClass="p-col p-nogutter ui-button-success" icon="pi pi-plus"
+      (onClick)="createOrUpdateCategory(parent)" [disabled]="!category && !parent">
+    </p-button>
+    <p-button label="Изменить" styleClass="p-col p-nogutter" icon="pi pi-pencil"
+      (onClick)="createOrUpdateCategory(parent, parent ? category : subcategory)"
+      [disabled]="!category || !parent && !subcategory">
+    </p-button>
+    <p-button label="Удалить" styleClass="p-col p-nogutter ui-button-danger" icon="pi pi-times"
+      (onClick)="deleteCategory(parent ? category : subcategory)" [disabled]="!category || !parent && !subcategory">
+    </p-button>
+  </div>
+</ng-template>

@@ -1,0 +1,27 @@
+<div class="p-grid">
+  <div class="p-col-12">
+    <label>{{ label }}:</label>
+  </div>
+  <div class="p-col-12">
+    <ng-container *ngIf="mask; else elseBlock">
+      <p-inputMask [mask]="mask" [formControl]="control" [placeholder]="placeholder || label"></p-inputMask>
+    </ng-container>
+    <ng-template #elseBlock>
+      <input *ngIf="type === 'text' || type === 'number' || type === 'password'" [placeholder]="placeholder || label"
+        [formControl]="control" [type]="type" pInputText [placeholder]="placeholder || label"
+        [class.ng-dirty.ng-invalid]="control.invalid && control.touched">
+      <p-dropdown *ngIf="type === 'select'" [placeholder]="placeholder || label" [style]="{width: '100%'}"
+        (onChange)="selectedOption($event)" [class.ng-dirty.ng-invalid]="control.invalid && control.touched"
+        [autoDisplayFirst]="false" [options]="options" [formControl]="control" [optionLabel]="optionLabel">
+      </p-dropdown>
+      <p-calendar *ngIf="type === 'datetime'" [style]="{width: '100%'}" [placeholder]="placeholder || label"
+        [formControl]="control" [showTime]="true" dateFormat="dd/mm/yy">
+      </p-calendar>
+      <textarea *ngIf="type === 'textarea'" class="app-textarea" [placeholder]="placeholder || label"
+        [formControl]="control" pInputTextarea></textarea>
+    </ng-template>
+  </div>
+  <div class="p-col-12" *ngIf="control.invalid && control.touched">
+    <p-message severity="error" [text]="getMessage()"></p-message>
+  </div>
+</div>

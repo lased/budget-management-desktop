@@ -1,0 +1,17 @@
+<p-table [columns]="columns" [value]="value" (sortFunction)="customSort($event)" [customSort]="true">
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+      <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+        {{ col.header }}
+        <p-sortIcon [field]="col.field"></p-sortIcon>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-rowData let-i="rowIndex" let-columns="columns">
+    <tr>
+      <td *ngFor="let col of columns">
+        {{ col.format ? col.format(getRowData(rowData, col.field), i, rowData) || '' : getRowData(rowData, col.field) }}
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

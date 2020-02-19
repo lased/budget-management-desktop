@@ -1,0 +1,25 @@
+<div class="p-grid">
+  <div class="p-col-6">
+    <p-chart *ngIf="pieChart$ | async as pieChart; else loader" type="pie" [data]="pieChart.data"
+      [options]="pieChart.options"></p-chart>
+  </div>
+  <div class="p-col-6 p-grid p-justify-center p-align-center">
+    <span class="balance p-grid p-justify-center p-align-center"
+      [style.background-color]="balance >= 0 ? '#34A835' : '#e91224'">
+      {{ helpers.formatCurrency(balance) }}
+    </span>
+  </div>
+  <div class="p-col-12">
+    <ng-container *ngIf="records$ | async as records; else loader">
+      <app-table *ngIf="records.length; else emptyTable" [columns]="recordColumns" [value]="records"></app-table>
+    </ng-container>
+  </div>
+</div>
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>
+
+<ng-template #emptyTable>
+  <app-empty-list text="Список записей пуст (выберите элемент на диаграмме)"></app-empty-list>
+</ng-template>

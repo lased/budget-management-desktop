@@ -1,0 +1,13 @@
+<div class="p-grid p-justify-center">
+  <div class="p-col-10">
+    <ng-container *ngIf="lineChart$ | async as lineChart; else loader">
+      <app-input type="select" [options]="periods" optionLabel="name" label="Выберите период прогноза"
+        [control]="periodControl" (selected)="selectPeriod(lineChart)"></app-input>
+      <p-chart type="line" [data]="lineChart.data" [options]="lineChart.options"></p-chart>
+    </ng-container>
+  </div>
+</div>
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>

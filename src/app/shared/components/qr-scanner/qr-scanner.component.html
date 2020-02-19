@@ -1,0 +1,13 @@
+<div class="p-grid" *ngIf="foundCameras$ | async as cameras">
+  <div class="p-col-12">
+    <label>Выберите камеру:</label>
+  </div>
+  <div class="p-col-12">
+    <p-dropdown [placeholder]="cameras.length ? 'Выберите камеру' : 'Список пуст'" [disabled]="!cameras.length"
+      (onChange)="useCamera($event.value)" [options]="cameras" [(ngModel)]="chooseCameraControl" optionLabel="label">
+    </p-dropdown>
+  </div>
+</div>
+
+<canvas #qrCanvas hidden [width]="canvasWidth" [height]="canvasHeight"></canvas>
+<div #video></div>

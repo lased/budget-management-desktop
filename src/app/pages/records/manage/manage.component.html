@@ -1,0 +1,62 @@
+<form [formGroup]="form" (ngSubmit)="save()">
+  <p-selectButton [options]="types" formControlName="type" (onChange)="changeType($event.value)" styleClass="p-grid">
+  </p-selectButton>
+
+  <app-input type="select" optionLabel="name" label="Пользователь" [options]="users" [control]="form.controls.user">
+  </app-input>
+  <div class="p-grid">
+    <div class="p-col-6">
+      <app-input type="select" optionLabel="name" label="Категория" [options]="categories"
+        [control]="form.controls.category" (selected)="selectCategory($event.value)"></app-input>
+    </div>
+    <div class="p-col-6">
+      <app-input type="select" optionLabel="name" label="Подкатегория" [options]="subcategories"
+        [control]="form.controls.subcategory"></app-input>
+    </div>
+  </div>
+  <div class="p-grid">
+    <div *ngIf="isExpense()" class="p-col-12" style="text-align: center">
+      <button class="ui-button-success ui-button-rounded" type="button" (click)="openQrDialog()" pButton
+        icon="pi pi-camera" label="Загрузить данные с чека"></button>
+    </div>
+    <div *ngIf="isExpense() && record.products && record.products.length" class="p-col-12">
+      <p-accordion>
+        <p-accordionTab header="Товары и услуги ({{ record.products.length }})">
+          <p-table [value]="record.products">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Наименование</th>
+                <th>Количество</th>
+                <th>Цена</th>
+                <th>Сумма</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-product>
+              <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>{{ product.price / 100 | currency: 'RUB':'symbol-narrow':'1.0-2':'ru' }}</td>
+                <td>{{ (product.price * product.quantity) / 100 | currency: 'RUB':'symbol-narrow':'1.0-2':'ru' }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-accordionTab>
+      </p-accordion>
+    </div>
+    <div class="p-col-6">
+      <app-input type="datetime" label="Дата" [control]="form.controls.date">
+      </app-input>
+    </div>
+    <div class="p-col-6">
+      <app-input type="number" label="Сумма (руб.)" [control]="form.controls.amount">
+      </app-input>
+    </div>
+  </div>
+  <app-input type="textarea" label="Примечание" [control]="form.controls.note">
+  </app-input>
+
+  <button pButton type="submit" [label]="record ? 'Сохранить' : 'Добавить'" [disabled]="form.invalid"></button>
+  <button pButton type="button" label="Отмена" class="ui-button-secondary" (click)="close()"></button>
+</form>
+
+<p-toast [style]="{top: '60px'}"></p-toast>

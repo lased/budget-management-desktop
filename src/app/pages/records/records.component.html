@@ -1,0 +1,45 @@
+<div *ngIf="records$ | async as records; else loader">
+  <p-table *ngIf="records.length; else emptyList" [value]="records">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Тип</th>
+        <th>Категория</th>
+        <th>Подкатегория</th>
+        <th>Пользователь</th>
+        <th>Дата</th>
+        <th>Сумма</th>
+        <th>Примечание</th>
+        <th>Действия</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-record>
+      <tr>
+        <td>{{ getTypeName(record.type) }}</td>
+        <td>{{ record.category.name }}</td>
+        <td>{{ record.subcategory ? record.subcategory.name : '' }}</td>
+        <td>{{ record.user.name }}</td>
+        <td>{{ record.date | date: 'dd.MM.yyyy H:mm'}}</td>
+        <td>{{ record.amount | currency: 'RUB':'symbol-narrow':'1.0-2':'ru' }}</td>
+        <td>{{ record.note }}</td>
+        <td>
+          <p-button icon="pi pi-pencil" styleClass="ui-button-rounded ui-button-info"
+            (click)="createOrUpdate(record.id)">
+          </p-button>
+          <p-button icon="pi pi-trash" styleClass="ui-button-rounded ui-button-danger" (click)="delete(record.id)">
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>
+
+<ng-template #emptyList>
+  <app-empty-list></app-empty-list>
+</ng-template>
+
+<p-button icon="pi pi-plus" styleClass="fab-button ui-button-rounded ui-button-success" (click)="createOrUpdate()">
+</p-button>

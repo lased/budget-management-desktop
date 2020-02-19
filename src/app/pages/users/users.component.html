@@ -1,0 +1,22 @@
+<ng-container *ngIf="users$ | async as users; else loader">
+  <ng-container *ngIf="users.length; else emptyList">
+    <div *ngFor="let user of users">
+      {{ user.name }}
+      <p-button icon="pi pi-pencil" styleClass="ui-button-rounded ui-button-info" (click)="createOrUpdate(user.id)">
+      </p-button>
+      <p-button icon="pi pi-trash" styleClass="ui-button-rounded ui-button-danger" (click)="delete(user.id)">
+      </p-button>
+    </div>
+  </ng-container>
+</ng-container>
+
+<ng-template #emptyList>
+  <app-empty-list></app-empty-list>
+</ng-template>
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>
+
+<p-button icon="pi pi-plus" styleClass="fab-button ui-button-rounded ui-button-success" (click)="createOrUpdate()">
+</p-button>

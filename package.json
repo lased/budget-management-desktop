@@ -2,16 +2,17 @@
   "name": "budget-management-desktop",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "ng:serve": "ng serve",
+    "ng:build": "ng build",
+    "electron": "electron .",
+    "electron:serve": "electron . --serve",
+    "postinstall": "electron-builder install-app-deps",
+    "electron-build:win": "ng build --prod && electron-builder --windows portable:ia32"
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "~9.0.1",
+    "@angular/cdk": "^9.0.0",
     "@angular/common": "~9.0.1",
     "@angular/compiler": "~9.0.1",
     "@angular/core": "~9.0.1",
@@ -19,19 +20,31 @@
     "@angular/platform-browser": "~9.0.1",
     "@angular/platform-browser-dynamic": "~9.0.1",
     "@angular/router": "~9.0.1",
+    "brain.js": "^2.0.0-alpha.12",
+    "chart.js": "^2.9.3",
+    "jsqr": "^1.2.0",
+    "primeflex": "^1.0.0",
+    "primeicons": "^2.0.0",
+    "primeng": "^9.0.0-rc.4",
     "rxjs": "~6.5.4",
+    "sequelize": "^5.21.4",
+    "sqlite3": "^4.1.1",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^8.4.1",
     "@angular-devkit/build-angular": "~0.900.2",
     "@angular/cli": "~9.0.2",
     "@angular/compiler-cli": "~9.0.1",
     "@angular/language-service": "~9.0.1",
-    "@types/node": "^12.11.1",
+    "@types/chart.js": "^2.9.14",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
+    "@types/node": "^12.11.1",
     "codelyzer": "^5.1.2",
+    "electron": "^8.0.1",
+    "electron-builder": "^22.3.2",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.3.0",
@@ -43,5 +56,26 @@
     "ts-node": "~8.3.0",
     "tslint": "~5.18.0",
     "typescript": "~3.7.5"
-  }
+  },
+  "build": {
+    "directories": {
+      "output": "release/"
+    }
+  },
+  "files": [
+    "**/*",
+    "!**/*.ts",
+    "!*.code-workspace",
+    "!LICENSE.md",
+    "!package.json",
+    "!package-lock.json",
+    "!src/",
+    "!e2e/",
+    "!hooks/",
+    "!angular.json",
+    "!_config.yml",
+    "!karma.conf.js",
+    "!tsconfig.json",
+    "!tslint.json"
+  ]
 }

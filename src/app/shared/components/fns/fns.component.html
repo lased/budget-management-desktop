@@ -1,0 +1,18 @@
+<form (ngSubmit)="save()">
+  <app-input *ngIf="type === 'register'" label="Email" [control]="form.controls.email">
+  </app-input>
+  <app-input *ngIf="type === 'register'" label="Имя" [control]="form.controls.name">
+  </app-input>
+  <app-input *ngIf="type === 'register' || type === 'login' || type === 'restore'" mask="+7 (999) 999-9999"
+    placeholder="+7 (123) 456-7890" label="Номер телефона" [control]="form.controls.phone">
+  </app-input>
+  <app-input *ngIf="type === 'login'" type="password" label="Пароль" [control]="form.controls.password"></app-input>
+
+  <a *ngIf="type !== 'login'" (click)="link('login')">Авторизация</a>
+  <a *ngIf="type !== 'register'" (click)="link('register')">Регистрация</a>
+  <a *ngIf="type !== 'restore'" (click)="link('restore')">Забыли пароль?</a>
+
+  <button pButton type="submit" [label]="type === 'login' ? 'Сохранить' : 'Отправить'"
+    [disabled]="form.invalid"></button>
+  <button pButton type="button" label="Отмена" class="ui-button-secondary" (click)="closeEvent()"></button>
+</form>

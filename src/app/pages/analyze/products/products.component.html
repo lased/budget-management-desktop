@@ -1,0 +1,15 @@
+<div class="p-grid p-justify-center">
+  <div class="p-col-11">
+    <ng-container *ngIf="products$ | async as products; else loader">
+      <app-table *ngIf="products.length; else emptyTable" [columns]="productColumns" [value]="products"></app-table>
+    </ng-container>
+  </div>
+</div>
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>
+
+<ng-template #emptyTable>
+  <app-empty-list></app-empty-list>
+</ng-template>

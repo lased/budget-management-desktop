@@ -1,0 +1,18 @@
+<form class="p-grid" [formGroup]="form" (ngSubmit)="save()">
+  <div class="p-col-12" *ngIf="error">
+    <p-message severity="error" [text]="error"></p-message>
+  </div>
+  <div class="p-col-12">
+    <app-input label="Наименование" [control]="form.controls.name"></app-input>
+  </div>
+  <div class="p-col-12 p-grid p-justify-end" style="padding-right: 0">
+    <div class="p-col-4">
+      <button style="width: 100%" pButton type="submit" [label]="edit ? 'Сохранить': 'Добавить'"
+        [disabled]="form.invalid"></button>
+    </div>
+    <div class="p-col-3" style="padding-right: 0">
+      <button style="width: 100%" pButton type="button" label="Отмена" class="ui-button-secondary"
+        (click)="close()"></button>
+    </div>
+  </div>
+</form>

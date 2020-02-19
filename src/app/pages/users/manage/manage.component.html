@@ -1,0 +1,12 @@
+<form class="p-grid" [formGroup]="form" (ngSubmit)="save()">
+  <div class="p-col-12" *ngIf="error">
+    <p-message severity="error" [text]="error"></p-message>
+  </div>
+  <div class="p-col-12">
+    <app-input label="Имя пользователя" [control]="form.controls.name"></app-input>
+  </div>
+  <div class="p-col-12">
+    <button pButton type="submit" [label]="user ? 'Сохранить' : 'Добавить'" [disabled]="form.invalid"></button>
+    <button pButton type="button" label="Отмена" class="ui-button-secondary" (click)="close()"></button>
+  </div>
+</form>
