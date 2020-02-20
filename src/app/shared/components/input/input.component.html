@@ -12,7 +12,7 @@
         [class.ng-dirty.ng-invalid]="control.invalid && control.touched">
       <p-dropdown *ngIf="type === 'select'" [placeholder]="placeholder || label" [style]="{width: '100%'}"
         (onChange)="selectedOption($event)" [class.ng-dirty.ng-invalid]="control.invalid && control.touched"
-        [autoDisplayFirst]="false" [options]="options" [formControl]="control" [optionLabel]="optionLabel">
+        [autoDisplayFirst]="false" [optionLabel]="optionLabel" [options]="options" [formControl]="control">
       </p-dropdown>
       <p-calendar *ngIf="type === 'datetime'" [style]="{width: '100%'}" [placeholder]="placeholder || label"
         [formControl]="control" [showTime]="true" dateFormat="dd/mm/yy">

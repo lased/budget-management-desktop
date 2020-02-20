@@ -1,11 +1,10 @@
-import { NeuralNetwork, INeuralNetworkJSON } from 'brain.js';
 import * as fs from 'fs';
 
 import { Config } from '../../../core/config';
 
 export class NeuralModel {
     range = 3;
-    net: NeuralNetwork;
+    net: brain.NeuralNetwork;
     lockFile: boolean;
     normalData: number[];
     data: number[];
@@ -18,7 +17,7 @@ export class NeuralModel {
         this.min = Math.min.apply(null, this.data);
         this.lockFile = false;
         this.normalData = this.data.map(v => (v - this.min) / (this.max - this.min));
-        this.net = new NeuralNetwork({
+        this.net = new brain.NeuralNetwork({
             hiddenLayers: [6, 3, 6],
             activation: 'sigmoid'
         });
@@ -27,7 +26,7 @@ export class NeuralModel {
 
     loadModel() {
         if (fs.existsSync(Config.model) && !this.lockFile) {
-            const data: INeuralNetworkJSON = JSON.parse(fs.readFileSync(Config.model, 'utf-8'));
+            const data: brain.INeuralNetworkJSON = JSON.parse(fs.readFileSync(Config.model, 'utf-8'));
 
             data.trainOpts.iterations = Infinity;
             this.net.fromJSON(data);
@@ -41,7 +40,7 @@ export class NeuralModel {
         });
     }
 
-    getModelData(){
+    getModelData() {
         const modelData = [];
 
         for (let index = 0; index < this.normalData.length - this.range; index++) {

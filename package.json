@@ -7,7 +7,8 @@
     "electron": "electron .",
     "electron:serve": "electron . --serve",
     "postinstall": "electron-builder install-app-deps",
-    "electron-build:win": "ng build --prod && electron-builder --windows portable:ia32"
+    "electron-build:win": "ng build --prod && electron-builder --windows portable:ia32",
+    "electron-build:lin": "ng build --prod && electron-builder --linux"
   },
   "private": true,
   "dependencies": {
@@ -20,7 +21,6 @@
     "@angular/platform-browser": "~9.0.1",
     "@angular/platform-browser-dynamic": "~9.0.1",
     "@angular/router": "~9.0.1",
-    "brain.js": "^2.0.0-alpha.12",
     "chart.js": "^2.9.3",
     "jsqr": "^1.2.0",
     "primeflex": "^1.0.0",
