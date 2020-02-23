@@ -1,0 +1,9 @@
+.ui-dialog {
+  &-titlebar {
+    display: flex;
+  }
+
+  &-title {
+    flex-grow: 1;
+  }
+}

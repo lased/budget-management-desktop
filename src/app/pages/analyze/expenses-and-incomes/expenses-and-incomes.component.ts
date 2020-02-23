@@ -33,7 +33,7 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
       { field: 'user.name', header: 'Пользователь' },
       { field: 'date', header: 'Дата', format: date => Helpers.formatDate(date) },
       { field: 'amount', header: 'Сумма', format: amount => Helpers.formatCurrency(amount) },
-      { field: 'note', header: 'Примечание' }
+      { field: 'note', header: 'Примечание', sortable: false }
     ];
     this.records$ = this.getRecords();
   }

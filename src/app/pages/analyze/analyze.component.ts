@@ -11,12 +11,5 @@ export class AnalyzeComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
-    this.items = [
-      { label: 'Расходы и доходы', routerLink: ['/pages/analyze/expenses-and-incomes'] },
-      { label: 'По категориям', routerLink: ['/pages/analyze/categories'] },
-      { label: 'Товары и услуги', routerLink: ['/pages/analyze/products'] },
-      { label: 'Прогнозирование', routerLink: ['/pages/analyze/forecast'] }
-    ];
-  }
+  ngOnInit() { }
 }

@@ -18,6 +18,7 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { TableModule } from 'primeng/table';
 import { AccordionModule } from 'primeng/accordion';
 import { ChartModule } from 'primeng/chart';
+import { MenubarModule } from 'primeng/menubar';
 
 import { InputComponent } from './components/input/input.component';
 import { LoaderComponent } from './components/loader/loader.component';
@@ -48,7 +49,8 @@ const UIComponents = [
   InputMaskModule,
   TableModule,
   AccordionModule,
-  ChartModule
+  ChartModule,
+  MenubarModule
 ];
 
 const Components = [

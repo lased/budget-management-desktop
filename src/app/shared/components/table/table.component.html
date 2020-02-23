@@ -1,9 +1,9 @@
-<p-table [columns]="columns" [value]="value" (sortFunction)="customSort($event)" [customSort]="true">
+<p-table [columns]="columns" [value]="value" (onSort)="onSort($event)">
   <ng-template pTemplate="header" let-columns>
     <tr>
-      <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+      <th *ngFor="let col of columns" [pSortableColumn]="col.sortable !== false ? col.field : null">
         {{ col.header }}
-        <p-sortIcon [field]="col.field"></p-sortIcon>
+        <p-sortIcon *ngIf="col.sortable !== false" [field]="col.field"></p-sortIcon>
       </th>
     </tr>
   </ng-template>
