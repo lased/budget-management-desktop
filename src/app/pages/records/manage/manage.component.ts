@@ -21,6 +21,7 @@ import { FnsService } from 'src/app/core/services/fns.service';
 
 import { FnsDialogComponent } from '../fns-dialog/fns-dialog.component';
 import { QrDialogComponent } from '../qr-dialog/qr-dialog.component';
+import { Helpers } from 'src/app/core/helpers.class';
 
 @Component({
   selector: 'app-record-manage',
@@ -35,6 +36,8 @@ export class RecordManageComponent implements OnInit {
   users: User[] = [];
   categories: Category[] = [];
   subcategories: Category[] = [];
+
+  helpers = Helpers;
 
   constructor(
     private fb: FormBuilder,

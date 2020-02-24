@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ContentChild, TemplateRef } from '@angular/core';
 import { SortMeta } from 'primeng/api';
 
 import { TableColumn } from './table.interface';
@@ -13,6 +13,10 @@ export class TableComponent {
   @Input() value: any[];
 
   @Output() sort = new EventEmitter<SortMeta>();
+
+  @ContentChild('actionsHeader') actionsHeader: TemplateRef<any>;
+  @ContentChild('actionsBody') actionsBody: TemplateRef<any>;
+  @ContentChild('actionsCol') actionsCol: TemplateRef<any>;
 
   getRowData(row: any, field: string) {
     const arr = field.split('.');

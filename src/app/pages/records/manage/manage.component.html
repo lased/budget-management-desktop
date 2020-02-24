@@ -1,4 +1,4 @@
-<form [formGroup]="form" (ngSubmit)="save()">
+<form [formGroup]="form" (ngSubmit)="save()" class="app-form">
   <p-selectButton [options]="types" formControlName="type" (onChange)="changeType($event.value)" styleClass="p-grid">
   </p-selectButton>
 
@@ -35,8 +35,8 @@
               <tr>
                 <td>{{ product.name }}</td>
                 <td>{{ product.quantity }}</td>
-                <td>{{ product.price / 100 | currency: 'RUB':'symbol-narrow':'1.0-2':'ru' }}</td>
-                <td>{{ (product.price * product.quantity) / 100 | currency: 'RUB':'symbol-narrow':'1.0-2':'ru' }}</td>
+                <td>{{ helpers.formatCurrency(product.price / 100) }}</td>
+                <td>{{ helpers.formatCurrency((product.price * product.quantity) / 100) }}</td>
               </tr>
             </ng-template>
           </p-table>
@@ -55,8 +55,10 @@
   <app-input type="textarea" label="Примечание" [control]="form.controls.note">
   </app-input>
 
-  <button pButton type="submit" [label]="record ? 'Сохранить' : 'Добавить'" [disabled]="form.invalid"></button>
-  <button pButton type="button" label="Отмена" class="ui-button-secondary" (click)="close()"></button>
+  <div class="app-form__actions">
+    <button pButton type="submit" [label]="record ? 'Сохранить' : 'Добавить'" [disabled]="form.invalid"></button>
+    <button pButton type="button" label="Отмена" class="ui-button-secondary" (click)="close()"></button>
+  </div>
 </form>
 
 <p-toast [style]="{top: '60px'}"></p-toast>

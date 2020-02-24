@@ -1,5 +1,10 @@
-form {
-    button.ui-button {
-        margin-right: .5em;
+.app-form {
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+
+        button {
+            margin-left: .5em;
+        }
     }
 }
