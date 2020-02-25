@@ -1,5 +1,5 @@
 <div *ngIf="records$ | async as records; else loader" class="p-grid p-justify-center">
-  <div class="p-col-10">
+  <div class="p-col-11">
     <app-table *ngIf="records.length; else emptyTable" [columns]="recordColumns" [value]="records">
       <ng-template #actionsHeader>Действия</ng-template>
       <ng-template #actionsBody let-rowData="rowData" let-rowIndex="rowIndex">

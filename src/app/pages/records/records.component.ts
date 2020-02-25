@@ -26,7 +26,7 @@ export class RecordsComponent implements OnInit {
 
   ngOnInit() {
     this.recordColumns = [
-      { field: 'type', header: 'Тип', span: .5, format: type => type === RecordType.income ? 'Доход' : 'Расход' },
+      { field: 'type', header: 'Тип', span: .6, format: type => type === RecordType.income ? 'Доход' : 'Расход' },
       { field: 'category.name', header: 'Категория' },
       { field: 'subcategory.name', header: 'Подкатегория' },
       { field: 'user.name', header: 'Пользователь' },
