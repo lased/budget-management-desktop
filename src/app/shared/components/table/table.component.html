@@ -1,5 +1,6 @@
-<p-table [rows]="20" [rowsPerPageOptions]="[10,20,50]" [paginator]="true" [scrollable]="true" [columns]="columns" [value]="value"
-  (onSort)="onSort($event)">
+<p-table [paginator]="true" [rows]="rows" [rowsPerPageOptions]="rowsPerPageOptions" [lazy]="lazy"
+  [resetPageOnSort]="false" [totalRecords]="totalRecords" [loading]="loading" [scrollable]="true" [columns]="columns"
+  [value]="value" (onLazyLoad)="onLazyLoad($event)" (onSort)="onSort($event)">
 
   <ng-template pTemplate="colgroup" let-columns>
     <colgroup>
@@ -38,6 +39,14 @@
       <td *ngIf="actionsBody">
         <ng-container *ngTemplateOutlet="actionsBody; context: { rowData: rowData, rowIndex: i, columns: columns }">
         </ng-container>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage" let-columns>
+    <tr>
+      <td [attr.colspan]="columns.length + (actionsHeader ? 1 : 0)" style="text-align: center;">
+        Записей не найдено
       </td>
     </tr>
   </ng-template>

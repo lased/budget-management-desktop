@@ -1,6 +1,7 @@
-<div *ngIf="records$ | async as records; else loader" class="p-grid p-justify-center">
+<div class="p-grid p-justify-center">
   <div class="p-col-11">
-    <app-table *ngIf="records.length; else emptyTable" [columns]="recordColumns" [value]="records">
+    <app-table [lazy]="true" [loading]="loading" [columns]="recordColumns" [value]="records"
+      [totalRecords]="totalRecords" (lazyLoad)="onLazyLoad($event)">
       <ng-template #actionsHeader>Действия</ng-template>
       <ng-template #actionsBody let-rowData="rowData" let-rowIndex="rowIndex">
         <p-button icon="pi pi-pencil" styleClass="ui-button-rounded ui-button-info"
@@ -12,14 +13,6 @@
     </app-table>
   </div>
 </div>
-
-<ng-template #loader>
-  <app-loader></app-loader>
-</ng-template>
-
-<ng-template #emptyTable>
-  <app-empty-list></app-empty-list>
-</ng-template>
 
 <p-button icon="pi pi-plus" styleClass="fab-button ui-button-rounded ui-button-success" (click)="createOrUpdate()">
 </p-button>

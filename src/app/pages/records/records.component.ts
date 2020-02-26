@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { LazyLoadEvent } from 'primeng/api';
+import { Order } from 'sequelize/types';
 
-import { RecordType } from 'src/app/core/interfaces';
-
-import { Record } from 'src/app/core/models/record';
-import { Category } from 'src/app/core/models/category';
-import { User } from 'src/app/core/models/user';
-import { Helpers } from 'src/app/core/helpers.class';
-import { TableColumn } from 'src/app/shared/components/table/table.interface';
+import { Record } from '@app/core/models/record';
+import { Category } from '@app/core/models/category';
+import { User } from '@app/core/models/user';
+import { Helpers } from '@app/core/helpers.class';
+import { TableColumn } from '@shared/components/table/table.interface';
+import { RecordType } from '@app/core/interfaces';
 
 @Component({
   selector: 'app-records',
@@ -15,10 +16,13 @@ import { TableColumn } from 'src/app/shared/components/table/table.interface';
   styleUrls: ['./records.component.scss']
 })
 export class RecordsComponent implements OnInit {
-  records$: Promise<Record[]>;
-  recordColumns: TableColumn[];
-
+  loading = false;
   helpers = Helpers;
+
+  records: Record[];
+  recordColumns: TableColumn[];
+  totalRecords: number;
+  event: LazyLoadEvent;
 
   constructor(
     private router: Router
@@ -34,18 +38,41 @@ export class RecordsComponent implements OnInit {
       { field: 'amount', header: 'Сумма', format: amount => this.helpers.formatCurrency(amount) },
       { field: 'note', header: 'Примечание', sortable: false }
     ];
-    this.getRecords();
+    this.loading = true;
   }
 
-  getRecords() {
-    this.records$ = null;
-    this.records$ = Record.findAll({
-      include: [
-        { model: Category, as: 'category' },
-        { model: Category, as: 'subcategory' },
-        { model: User, as: 'user' }
-      ],
-      order: [['date', 'DESC']]
+  onLazyLoad(event: LazyLoadEvent) {
+    this.event = event;
+    this.getRecords(event);
+  }
+
+  getRecords(event: LazyLoadEvent) {
+    const include = [
+      { model: Category, as: 'category' },
+      { model: Category, as: 'subcategory' },
+      { model: User, as: 'user' }
+    ];
+    let order: Order = [['date', 'DESC']];
+
+    if (event.sortField) {
+      const field = event.sortField.split('.');
+      const sortOrder = event.sortOrder === 1 ? 'ASC' : 'DESC';
+
+      order = field.length > 1
+        ? [[include.find(i => i.as === field[0]), field[1], sortOrder]]
+        : [[field[0], sortOrder]];
+    }
+
+    this.loading = true;
+    Record.findAndCountAll({
+      include,
+      order,
+      limit: event.rows,
+      offset: event.first
+    }).then(({ rows, count }) => {
+      this.totalRecords = count;
+      this.records = rows;
+      this.loading = false;
     });
   }
 
@@ -64,7 +91,7 @@ export class RecordsComponent implements OnInit {
   }
 
   delete(id: number) {
-    Record.destroy({ where: { id } }).then(_ => this.getRecords());
+    Record.destroy({ where: { id } }).then(_ => this.getRecords(this.event));
   }
 
 }
