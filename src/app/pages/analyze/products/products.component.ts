@@ -8,8 +8,7 @@ import { Product } from 'src/app/core/models/product';
 
 @Component({
   selector: 'app-products-analyze',
-  templateUrl: './products.component.html',
-  styleUrls: ['./products.component.scss']
+  templateUrl: './products.component.html'
 })
 export class ProductsAnalyzeComponent implements OnInit {
   products$: Promise<Product[]>;
@@ -20,8 +19,8 @@ export class ProductsAnalyzeComponent implements OnInit {
   ngOnInit() {
     this.productColumns = [
       { field: 'name', header: 'Наименование' },
-      { field: 'price', header: 'Цена', format: val => Helpers.formatCurrency(val / 100) },
       { field: 'quantity', header: 'Количество', format: val => Helpers.formatNumber(val) },
+      { field: 'price', header: 'Цена', format: val => Helpers.formatCurrency(val / 100) },
       { field: 'dataValues.amount', header: 'Сумма', format: val => Helpers.formatCurrency(val / 100) }
 
     ];

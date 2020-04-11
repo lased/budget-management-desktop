@@ -1,0 +1,17 @@
+.app-table {
+  td,
+  th {
+    overflow: hidden;
+    word-break: break-word;
+  }
+
+  &__create {
+    margin-bottom: 15px;
+    display: block;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: space-around;
+  }
+}

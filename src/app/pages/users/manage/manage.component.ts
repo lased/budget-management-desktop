@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/api';
 
 import { User } from 'src/app/core/models/user';
 
 @Component({
   selector: 'app-user-manage',
-  templateUrl: './manage.component.html',
-  styleUrls: ['./manage.component.scss']
+  templateUrl: './manage.component.html'
 })
 export class UserManageComponent implements OnInit {
   form: FormGroup;

@@ -4,90 +4,68 @@ import { switchMap, tap, catchError } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 
-import { QRData } from '../interfaces';
-
-interface FnsAccount {
-  phone: string;
-  email?: string;
-  name?: string;
-  password?: string;
-}
+import { QRData, FnsAccount } from '../interfaces';
+import { FnsRequestError } from '@shared/components/fns/fns.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FnsService {
-  private URL_API: string;
+  private URL_API = 'https://proverkacheka.nalog.ru:9999/v1';
+  private user: FnsAccount;
 
   constructor(
     private http: HttpClient,
     private message: MessageService
   ) {
-    this.URL_API = 'https://proverkacheka.nalog.ru:9999/v1';
+    this.init();
+  }
+
+  init() {
+    this.user = this.getUserData();
+  }
+
+  getUserData() {
+    return {
+      phone: localStorage.getItem('fnsPhone'),
+      password: localStorage.getItem('fnsPassword')
+    };
+  }
+
+  auth(options: FnsAccount) {
+    localStorage.setItem('fnsPhone', options.phone);
+    localStorage.setItem('fnsPassword', options.password);
+    this.user = { ...this.user, ...options };
   }
 
   isValid() {
-    const phone = localStorage.getItem('fnsPhone');
-    const password = localStorage.getItem('fnsPassword');
-
-    return phone && password;
-  }
-
-  parseQrCode(data: string): QRData {
-    const qrData: QRData = {};
-
-    data.split('&').forEach(row => {
-      const [name, value] = row.split('=');
-
-      qrData[name] = value;
-    });
-
-    qrData.s = +qrData.s;
-    qrData.n = +qrData.n;
-
-    let [date, time] = qrData.t.split('T');
-
-    time = time.replace(/([0-9]{2})/g, '$1:').slice(0, -1);
-    date = date.replace(/([0-9]{4})([0-9]{2})/, '$1-$2-');
-    qrData.t = [date, time].join('T');
-    qrData.s *= 100;
-
-    return qrData;
+    return Boolean(this.user.phone) && Boolean(this.user.password);
   }
 
   login(options: FnsAccount): Observable<HttpResponse<any>> {
-    const headers =
-      new HttpHeaders()
-        .set('Content-Type', 'application/json')
-        .set('Authorization', `Basic ${btoa(options.phone + ':' + options.password)}`);
+    const headers = this
+      .getHeaders()
+      .set('Authorization', `Basic ${btoa(options.phone + ':' + options.password)}`);
 
     return this.http.get(`${this.URL_API}/mobile/users/login`, {
       headers,
       observe: 'response'
     }).pipe(
-      tap(_ => {
-        localStorage.setItem('fnsPhone', options.phone);
-        localStorage.setItem('fnsPassword', options.password);
-      }),
+      tap(_ => this.auth(options)),
       catchError((err: HttpErrorResponse) => {
+        const newError = new FnsRequestError(err.status, 'Неизвестная ошибка');
+
         if (err.status === 403) {
-          this.message.add({
-            life: 10000,
-            severity: 'error',
-            summary: 'Ошибка',
-            detail: 'Неверный логин/пароль или пользователь не существует'
-          });
+          newError.message = 'Неверный логин/пароль или пользователь не существует';
         }
 
-        return throwError(err);
+        return throwError(newError);
       })
     );
   }
 
   restore(options: FnsAccount): Observable<HttpResponse<any>> {
-    const headers =
-      new HttpHeaders()
-        .set('Content-Type', 'application/json');
+    const headers = this.getHeaders();
 
     return this.http.post(`${this.URL_API}/mobile/users/restore`, {
       phone: options.phone
@@ -96,24 +74,24 @@ export class FnsService {
       observe: 'response'
     }).pipe(
       catchError((err: HttpErrorResponse) => {
-        if (err.status === 404) {
-          this.message.add({
-            life: 10000,
-            severity: 'error',
-            summary: 'Ошибка',
-            detail: 'Пользователя не существует'
-          });
+        const newError = new FnsRequestError(err.status, 'Неизвестная ошибка');
+
+        switch (err.status) {
+          case 409:
+            newError.message = 'Пользователь уже существует';
+            break;
+          case 400:
+            newError.message = 'Некорректный email';
+            break;
         }
 
-        return throwError(err);
+        return throwError(newError);
       })
     );
   }
 
   register(options: FnsAccount): Observable<HttpResponse<any>> {
-    const headers =
-      new HttpHeaders()
-        .set('Content-Type', 'application/json');
+    const headers = this.getHeaders();
 
     return this.http.post(`${this.URL_API}/mobile/users/signup`, {
       phone: options.phone,
@@ -124,16 +102,13 @@ export class FnsService {
       observe: 'response'
     }).pipe(
       catchError((err: HttpErrorResponse) => {
-        if (err.status === 409) {
-          this.message.add({
-            life: 10000,
-            severity: 'error',
-            summary: 'Ошибка',
-            detail: 'Данный пользователь уже существует'
-          });
+        const newError = new FnsRequestError(err.status, 'Неизвестная ошибка');
+
+        if (err.status === 404) {
+          newError.message = 'Номер телефона не найден';
         }
 
-        return throwError(err);
+        return throwError(newError);
       })
     );
   }
@@ -149,7 +124,9 @@ export class FnsService {
       switchMap(_ => this
         .http
         .get(`${this.URL_API}/inns/*/kkts/*/fss/${options.fn}/tickets/${options.i}`, {
-          headers: this.getHeaders(),
+          headers: this
+            .getHeaders()
+            .set('Authorization', `Basic ${btoa(this.user.phone + ':' + this.user.password)}`),
           params,
           observe: 'response'
         }).pipe(
@@ -162,18 +139,6 @@ export class FnsService {
                 detail: 'Чек найден, но не обработан'
               });
             }
-          }),
-          catchError((err: HttpErrorResponse) => {
-            if (err.status === 406) {
-              this.message.add({
-                life: 10000,
-                severity: 'error',
-                summary: 'Ошибка',
-                detail: 'Чек не найден'
-              });
-            }
-
-            return throwError(err);
           })
         )
       )
@@ -194,27 +159,20 @@ export class FnsService {
       observe: 'response'
     }).pipe(
       catchError((err: HttpErrorResponse) => {
+        const newError = new FnsRequestError(err.status, 'Неизвестная ошибка');
+
         if (err.status === 406) {
-          this.message.add({
-            life: 10000,
-            severity: 'error',
-            summary: 'Ошибка',
-            detail: 'Чек не найден'
-          });
+          newError.message = 'Чек не найден';
         }
 
-        return throwError(err);
+        return throwError(newError);
       })
     );
   }
 
   private getHeaders(): HttpHeaders {
-    const phone = localStorage.getItem('fnsPhone');
-    const password = localStorage.getItem('fnsPassword');
-
     return new HttpHeaders()
       .set('Content-Type', 'application/json')
-      .set('Authorization', `Basic ${btoa(phone + ':' + password)}`)
       .set('Device-Id', '')
       .set('Device-Os', '');
   }

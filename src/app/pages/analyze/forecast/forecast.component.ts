@@ -17,8 +17,7 @@ interface Period {
 
 @Component({
   selector: 'app-forecast-analyze',
-  templateUrl: './forecast.component.html',
-  styleUrls: ['./forecast.component.scss']
+  templateUrl: './forecast.component.html'
 })
 export class ForecastAnalyzeComponent implements OnInit {
   lineChart$: Promise<Chart>;
@@ -158,7 +157,7 @@ export class ForecastAnalyzeComponent implements OnInit {
               display: true,
               ticks: {
                 beginAtZero: true,
-                callback: (value, i, values) => Helpers.formatCurrency(value)
+                callback: (value, i, values) => Helpers.formatCurrency(+value)
               }
             }
           ],

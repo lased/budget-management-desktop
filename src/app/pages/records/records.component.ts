@@ -7,13 +7,12 @@ import { Record } from '@app/core/models/record';
 import { Category } from '@app/core/models/category';
 import { User } from '@app/core/models/user';
 import { Helpers } from '@app/core/helpers.class';
-import { TableColumn } from '@shared/components/table/table.interface';
+import { TableColumn, TableActions } from '@shared/components/table/table.interface';
 import { RecordType } from '@app/core/interfaces';
 
 @Component({
   selector: 'app-records',
-  templateUrl: './records.component.html',
-  styleUrls: ['./records.component.scss']
+  templateUrl: './records.component.html'
 })
 export class RecordsComponent implements OnInit {
   loading = false;
@@ -21,6 +20,7 @@ export class RecordsComponent implements OnInit {
 
   records: Record[];
   recordColumns: TableColumn[];
+  actionsCallback: TableActions;
   totalRecords: number;
   event: LazyLoadEvent;
 
@@ -29,6 +29,11 @@ export class RecordsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.actionsCallback = {
+      onCreate: () => this.create(),
+      onDelete: (record: Record) => this.delete(record.id),
+      onUpdate: (record: Record) => this.update(record.id)
+    };
     this.recordColumns = [
       { field: 'type', header: 'Тип', span: .6, format: type => type === RecordType.income ? 'Доход' : 'Расход' },
       { field: 'category.name', header: 'Категория' },
@@ -82,12 +87,12 @@ export class RecordsComponent implements OnInit {
       : 'Доход';
   }
 
-  createOrUpdate(id?: number) {
-    const url = id
-      ? ['/pages/records/update', id]
-      : ['/pages/records/create'];
+  create() {
+    this.router.navigate(['/pages/records/create']);
+  }
 
-    this.router.navigate(url);
+  update(id: number) {
+    this.router.navigate(['/pages/records/update', id]);
   }
 
   delete(id: number) {

@@ -1,6 +1,10 @@
 import { formatCurrency, getCurrencySymbol, formatDate, formatNumber } from '@angular/common';
 
 export class Helpers {
+    public static getCurrencySymbol(currencyCode: string = 'RUB', format: 'wide' | 'narrow' = 'narrow') {
+        return getCurrencySymbol(currencyCode, format);
+    }
+
     public static formatCurrency(value: number, currencyCode: string = 'RUB', locale: string = 'ru', digitsInfo: string = '1.0-2') {
         return formatCurrency(value, locale, getCurrencySymbol(currencyCode, 'narrow'), currencyCode, digitsInfo);
     }
@@ -13,7 +17,7 @@ export class Helpers {
         return formatNumber(value, locale, digitsInfo);
     }
 
-    public static getRandomColor(): string {
+    public static getRandomColor() {
         const letters = '0123456789ABCDEF';
         let color = '#';
 
@@ -21,5 +25,13 @@ export class Helpers {
             color += letters[Math.floor(Math.random() * 16)];
         }
         return color;
+    }
+
+    public static getNumber(value: string | number) {
+        if (typeof value === 'string') {
+            return parseFloat(value.replace(',', '.'));
+        }
+
+        return value;
     }
 }

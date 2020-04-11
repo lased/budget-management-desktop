@@ -27,3 +27,10 @@ export interface ReceiptItem {
     sum?: number;
     name: string;
 }
+
+export interface FnsAccount {
+    phone: string;
+    email?: string;
+    name?: string;
+    password: string;
+}

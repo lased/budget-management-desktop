@@ -1,18 +1,15 @@
 <form (ngSubmit)="save()">
-  <app-input *ngIf="type === 'register'" label="Email" [control]="form.controls.email">
-  </app-input>
-  <app-input *ngIf="type === 'register'" label="Имя" [control]="form.controls.name">
-  </app-input>
-  <app-input *ngIf="type === 'register' || type === 'login' || type === 'restore'" mask="+7 (999) 999-9999"
-    placeholder="+7 (123) 456-7890" label="Номер телефона" [control]="form.controls.phone">
-  </app-input>
-  <app-input *ngIf="type === 'login'" type="password" label="Пароль" [control]="form.controls.password"></app-input>
+  <ng-container *ngFor="let input of formInputs">
+    <app-input *ngIf="input.show()" [type]="input.type || 'text'" [label]="input.label" [control]="input.getControl()"
+      [mask]="input.mask" [placeholder]="input.placeholder">
+    </app-input>
+  </ng-container>
 
-  <a *ngIf="type !== 'login'" (click)="link('login')">Авторизация</a>
-  <a *ngIf="type !== 'register'" (click)="link('register')">Регистрация</a>
-  <a *ngIf="type !== 'restore'" (click)="link('restore')">Забыли пароль?</a>
+  <ng-container *ngFor="let link of links">
+    <a *ngIf="link.show()" (click)="setType(link.type)">{{ link.label }}</a>
+  </ng-container>
 
   <button pButton type="submit" [label]="type === 'login' ? 'Сохранить' : 'Отправить'"
     [disabled]="form.invalid"></button>
-  <button pButton type="button" label="Отмена" class="ui-button-secondary" (click)="closeEvent()"></button>
+  <button pButton type="button" label="Отмена" class="ui-button-secondary" (click)="close()"></button>
 </form>

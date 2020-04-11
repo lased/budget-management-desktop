@@ -4,7 +4,7 @@
   </div>
   <div class="p-col-12">
     <ng-container *ngIf="mask; else elseBlock">
-      <p-inputMask [mask]="mask" [formControl]="control" [placeholder]="placeholder || label"></p-inputMask>
+      <p-inputMask characterPattern="[0-9]+" [mask]="mask" [formControl]="control" [placeholder]="placeholder || label"></p-inputMask>
     </ng-container>
     <ng-template #elseBlock>
       <input *ngIf="type === 'text' || type === 'number' || type === 'password'" [placeholder]="placeholder || label"

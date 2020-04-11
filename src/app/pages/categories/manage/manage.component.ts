@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/api';
 
 import { Category } from 'src/app/core/models/category';
 import { RecordType } from 'src/app/core/interfaces';
 
 @Component({
   selector: 'app-category-manage',
-  templateUrl: './manage.component.html',
-  styleUrls: ['./manage.component.scss']
+  templateUrl: './manage.component.html'
 })
 export class CategoryManageComponent implements OnInit {
   form: FormGroup;

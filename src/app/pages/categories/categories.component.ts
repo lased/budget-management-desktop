@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { DialogService } from 'primeng/dynamicdialog';
-import { SelectItem } from 'primeng/api';
+import { SelectItem, DialogService } from 'primeng/api';
 
 import { Category } from 'src/app/core/models/category';
 import { RecordType } from 'src/app/core/interfaces';
@@ -9,8 +8,7 @@ import { CategoryManageComponent } from './manage/manage.component';
 
 @Component({
   selector: 'app-categories',
-  templateUrl: './categories.component.html',
-  styleUrls: ['./categories.component.scss']
+  templateUrl: './categories.component.html'
 })
 export class CategoriesComponent implements OnInit {
   form: FormGroup;

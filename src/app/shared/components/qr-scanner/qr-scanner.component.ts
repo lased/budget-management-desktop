@@ -5,8 +5,7 @@ import jsQR, { QRCode } from 'jsqr';
 
 @Component({
   selector: 'app-qr-scanner',
-  templateUrl: './qr-scanner.component.html',
-  styleUrls: ['./qr-scanner.component.scss']
+  templateUrl: './qr-scanner.component.html'
 })
 export class QrScannerComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() canvasWidth = 640;

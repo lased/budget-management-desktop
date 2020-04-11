@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ContentChild, TemplateRef, OnInit } from '@angular/core';
 import { SortMeta, LazyLoadEvent } from 'primeng/api';
 
-import { TableColumn } from './table.interface';
+import { TableColumn, TableActions } from './table.interface';
 
 @Component({
   selector: 'app-table',
@@ -9,32 +9,19 @@ import { TableColumn } from './table.interface';
   styleUrls: ['./table.component.scss']
 })
 export class TableComponent {
-  private _totalRecords: number;
-
+  @Input() actions = true;
+  @Input() actionsSpan = 1;
+  @Input() actionsCallback: TableActions = {};
   @Input() rows = 20;
   @Input() rowsPerPageOptions = [10, 20, 50];
   @Input() lazy = false;
   @Input() loading = false;
-  @Input() columns: TableColumn[];
-  @Input() value: any[];
-  @Input()
-  get totalRecords() {
-    return this._totalRecords;
-  }
-  set totalRecords(value: number) {
-    this._totalRecords = value && typeof value === 'number' && value >= 0
-      ? value
-      : this.value
-        ? this.value.length
-        : 0;
-  }
+  @Input() columns: TableColumn[] = [];
+  @Input() value: any[] = [];
+  @Input() totalRecords = this.value.length;
 
   @Output() sort = new EventEmitter<SortMeta>();
   @Output() lazyLoad = new EventEmitter<LazyLoadEvent>();
-
-  @ContentChild('actionsHeader') actionsHeader: TemplateRef<any>;
-  @ContentChild('actionsBody') actionsBody: TemplateRef<any>;
-  @ContentChild('actionsCol') actionsCol: TemplateRef<any>;
 
   getRowData(row: any, field: string) {
     const arr = field.split('.');
@@ -64,4 +51,7 @@ export class TableComponent {
     this.lazyLoad.emit(event);
   }
 
+  checkFunction(fun: any){
+    return fun && typeof fun === 'function';
+  }
 }

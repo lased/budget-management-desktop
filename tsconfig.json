@@ -19,16 +19,17 @@
       "dom"
     ],
     "paths": {
+      "@core/*": ["src/app/core/*"],
+      "@shared/*": ["src/app/shared/*"],
+      "@pages/*": ["src/app/pages/*"],
       "@app/*": ["src/app/*"],
       "@assets/*": ["src/assets/*"],
       "@environments/*": ["src/environments/*"],
       "@styles/*": ["src/styles/*"],
-      "@core/*": ["src/app/core/*"],
-      "@shared/*": ["src/app/shared/*"],
-      "@pages/*": ["src/app/pages/*"]
     }
   },
   "angularCompilerOptions": {
+    "enableIvy": false,
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true
   }

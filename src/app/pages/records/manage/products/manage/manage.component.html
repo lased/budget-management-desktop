@@ -1,0 +1,10 @@
+<form class="app-form" [formGroup]="form" (ngSubmit)="product ? save() : create()">
+  <ng-container *ngFor="let input of formInputs">
+    <app-input [type]="input.type" [label]="input.label" [control]="input.control" [mask]="input.mask"></app-input>
+  </ng-container>
+
+  <div class="app-form__actions">
+    <button pButton type="submit" [label]="product ? 'Сохранить' : 'Добавить'" [disabled]="form.invalid"></button>
+    <button pButton type="button" label="Отмена" class="ui-button-secondary" (click)="close()"></button>
+  </div>
+</form>

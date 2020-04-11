@@ -1,34 +1,31 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { HttpResponse } from '@angular/common/http';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/api';
 
-import { TypeFnsForm } from 'src/app/shared/components/fns/fns.interface';
+import { TypeFnsForm, FnsRequestError } from '@shared/components/fns/fns.interface';
 
 @Component({
     selector: 'app-fns-dialog',
     template: `
         <p-message *ngIf="message" severity="info" [text]="message"></p-message>
         <app-fns-form [(type)]="type"
-            (close)="close()"
-            (success)="close($event)"
-            (error)="close($event)">
+            (closeEvent)="close()"
+            (successEvent)="close($event)"
+            (errorEvent)="close($event)">
         </app-fns-form>
     `
 })
 export class FnsDialogComponent implements OnInit {
-    private _type: TypeFnsForm;
+    message: string;
+
+    private _type: TypeFnsForm = 'login';
     get type() {
         return this._type;
     }
     set type(type: TypeFnsForm) {
         this._type = type;
-
-        if (this.message && this.type !== 'login') {
-            this.message = '';
-        }
+        this.message = '';
     }
-
-    message: string;
 
     constructor(
         private dialogRef: DynamicDialogRef,
@@ -36,13 +33,15 @@ export class FnsDialogComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.type = this.config.data.type;
+        if (this.config.data.type) {
+            this.type = this.config.data.type;
+        }
     }
 
-    close(res?: HttpResponse<any> | HttpErrorResponse) {
-        if (res instanceof HttpResponse && res.status !== 200) {
+    close(res?: HttpResponse<any> | FnsRequestError) {
+        if (res instanceof HttpResponse && res.status === 204) {
             this.type = 'login';
-            this.message = 'Теперь вы можете войти';
+            this.message = 'Теперь вы можете авторизоваться';
         } else {
             this.dialogRef.close(res);
         }

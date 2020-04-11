@@ -1,49 +1,49 @@
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
-import { tap, switchMap, catchError } from 'rxjs/operators';
-import { forkJoin, of, from, Observable, throwError } from 'rxjs';
-import { SelectItem, MessageService } from 'primeng/api';
-import { Transaction } from 'sequelize/types';
-import { DialogService } from 'primeng/dynamicdialog';
+import { ActivatedRoute, Router } from '@angular/router';
+import { switchMap, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+import { SelectItem, MessageService, DialogService } from 'primeng/api';
 
-import { RecordType, QRData, Receipt, ReceiptItem } from 'src/app/core/interfaces';
+import { RecordType, QRData, Receipt, ReceiptItem } from '@core/interfaces';
+import { FnsRequestError } from '@shared/components/fns/fns.interface';
 
-import { User } from 'src/app/core/models/user';
-import { Category } from 'src/app/core/models/category';
-import { Record } from 'src/app/core/models/record';
-import { Product } from 'src/app/core/models/product';
+import { User } from '@core/models/user';
+import { Category } from '@core/models/category';
+import { Record } from '@core/models/record';
+import { Product } from '@core/models/product';
 
-import { DatabaseService } from 'src/app/core/services/database.service';
-import { FnsService } from 'src/app/core/services/fns.service';
+import { Helpers } from '@core/helpers.class';
+
+import { FnsService } from '@core/services/fns.service';
+import { RecordService } from '@core/services/record.service';
 
 import { FnsDialogComponent } from '../fns-dialog/fns-dialog.component';
 import { QrDialogComponent } from '../qr-dialog/qr-dialog.component';
-import { Helpers } from 'src/app/core/helpers.class';
 
 @Component({
   selector: 'app-record-manage',
   templateUrl: './manage.component.html',
-  styleUrls: ['./manage.component.scss']
+  providers: [RecordService]
 })
 export class RecordManageComponent implements OnInit {
-  record: Record = new Record();
-  types: SelectItem[];
+  record: Record;
   form: FormGroup;
+  qrData: QRData;
 
-  users: User[] = [];
-  categories: Category[] = [];
-  subcategories: Category[] = [];
+  users: User[];
+  types: SelectItem[];
+  categories: Category[];
+  subcategories: Category[];
 
   helpers = Helpers;
 
   constructor(
     private fb: FormBuilder,
     private fns: FnsService,
-    private db: DatabaseService,
-    private location: Location,
+    private recordService: RecordService,
+    private router: Router,
     private dialog: DialogService,
     private message: MessageService,
     private activatedRoute: ActivatedRoute
@@ -60,55 +60,28 @@ export class RecordManageComponent implements OnInit {
     this.form = this.fb.group({
       type: ['', [Validators.required]],
       date: [new Date(), [Validators.required]],
-      amount: ['', [Validators.required]],
+      amount: ['', [Validators.required, Validators.min(0)]],
       note: ['', [Validators.maxLength(255)]],
       category: ['', [Validators.required]],
       subcategory: [''],
       user: ['']
     });
     this.form.disable();
+    this.form.controls.type.enable();
+    this.record = this.recordService.getRecord();
 
     if (id) {
-      forkJoin(
-        from(Record.findOne({
-          where: { id },
-          include: [{ model: Product, as: 'products' }]
-        })) as Observable<Record>,
-        from(User.findAll()) as Observable<User[]>
-      ).pipe(
-        switchMap(([rec, usrs]) => {
-          this.record = rec;
-          this.users = usrs;
+      this.recordService.loadRecord(() => Record.findOne({
+        where: { id },
+        include: [{ model: Product, as: 'products' }]
+      })).then(async () => {
+        this.record = this.recordService.getRecord();
+        this.users = await this.getUsers();
+        this.categories = await this.getCategories(this.record.type);
+        this.subcategories = await this.getCategories(this.record.type, this.record.categoryId);
 
-          return (from(Category.findAll({
-            where: {
-              type: rec.type,
-              parentId: null
-            }
-          })) as Observable<Category[]>).pipe(
-            switchMap(ctgs => {
-              this.categories = ctgs;
-
-              return !rec.subcategoryId
-                ? of(null)
-                : (from(Category.findAll({
-                  where: {
-                    parentId: rec.categoryId
-                  }
-                })) as Observable<Category[]>).pipe(
-                  tap(subctgs => this.subcategories = subctgs)
-                );
-            })
-          );
-        })
-      ).subscribe(_ => {
-        const products = this.record.products;
-
-        if (products && products.length) {
-          this.form.controls.amount.setValidators([
-            Validators.required,
-            Validators.min(this.sumProducts(products) / 100)
-          ]);
+        if (this.record.products?.length) {
+          this.setAmountValidators();
         }
 
         this.form.patchValue({
@@ -126,89 +99,136 @@ export class RecordManageComponent implements OnInit {
           this.form.controls.subcategory.disable();
         }
       });
-    } else {
-      this.form.controls.type.enable();
     }
   }
 
-  sumProducts(products: Product[]): number {
-    return products.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
+  getUsers(): Promise<User[]> {
+    return User.findAll();
+  }
+
+  getCategories(type: RecordType, parentId?: number): Promise<Category[]> {
+    return Category.findAll({
+      where: {
+        type,
+        parentId: parentId || null
+      }
+    });
+  }
+
+  setAmountValidators() {
+    const sum = this.sumProducts(this.record.products);
+
+    this.form.controls.amount.setValue(sum);
+    this.form.controls.amount.setValidators([
+      Validators.required,
+      Validators.min(this.sumProducts(this.record.products))
+    ]);
+  }
+
+  sumProducts(products: Product[]) {
+    return Math.floor(products.reduce((acc, curr) => acc + curr.price * curr.quantity, 0) / 100);
   }
 
   isExpense() {
-    return (this.form.controls.type.value as RecordType) === RecordType.expense;
+    return this.form.value.type === RecordType.expense;
   }
 
-  changeType(type: RecordType) {
+  async changeType(type: RecordType) {
     this.form.disable();
     this.form.controls.type.enable();
     this.form.controls.category.reset();
     this.form.controls.subcategory.reset();
-    Promise.all([
-      User.findAll() as User[],
-      Category.findAll({
-        where: {
-          type,
-          parentId: null
-        }
-      }) as Category[],
-    ]).then(([usrs, ctgs]) => {
-      this.users = usrs;
-      this.categories = ctgs;
-      this.form.patchValue({
-        user: usrs.find(u => u.main)
-      });
-      this.form.enable();
-      this.form.controls.subcategory.disable();
+    this.users = await this.getUsers();
+    this.categories = await this.getCategories(type);
+    this.form.patchValue({
+      user: this.users.find(u => u.main)
     });
+    this.form.enable();
+    this.form.controls.subcategory.disable();
+  }
+
+  async selectCategory(category: Category) {
+    const subctgControl = this.form.controls.subcategory;
+
+    subctgControl.reset();
+    this.subcategories = await this.getCategories(this.form.value.type, category.id);
+    this.subcategories.length ? subctgControl.enable() : subctgControl.disable();
+  }
+
+  createProduct(product: Product) {
+    this.recordService.createProduct(product);
+    this.setAmountValidators();
+  }
+
+  updateProduct(product: { old: Product, new: Product }) {
+    this.recordService.updateProduct(product);
+    this.setAmountValidators();
+  }
+
+  deleteProduct(product: Product) {
+    this.recordService.deleteProduct(product);
+    this.setAmountValidators();
   }
 
   openQrDialog() {
     this.dialog.open(QrDialogComponent, {
       header: 'Сканер'
-    }).onClose.subscribe((data: string) => {
-      if (data) {
-        try {
-          const qrData = this.fns.parseQrCode(data);
-
-          this.form.patchValue({
-            date: new Date(qrData.t),
-            amount: qrData.s / 100
-          });
-          this.getData(qrData);
-        } catch (err) {
-          this.message.add({
-            life: 10000,
-            severity: 'error',
-            summary: 'Ошибка',
-            detail: 'Некорректный QR код'
-          });
-        }
+    }).onClose.subscribe((qrData: QRData) => {
+      if (qrData) {
+        this.qrData = qrData;
+        this.getData(this.qrData);
+      } else {
+        this.message.add({
+          life: 10000,
+          severity: 'error',
+          summary: 'Ошибка',
+          detail: 'Некорректный QR код'
+        });
       }
     });
   }
 
   getData(qrData: QRData) {
-    const phone = localStorage.getItem('fnsPhone');
-    const password = localStorage.getItem('fnsPassword');
+    if (!this.fns.isValid()) {
+      this.openAuthDialog();
 
-    this.fns.login({ phone, password }).pipe(
+      return;
+    }
+
+    this.fns.login(this.fns.getUserData()).pipe(
       catchError(err => {
-        this.openAuthDialog(qrData);
+        this.message.add({
+          life: 10000,
+          severity: 'error',
+          summary: 'Ошибка',
+          detail: err.message
+        });
+        this.openAuthDialog();
 
         return throwError(err);
       }),
       switchMap(res => this.fns.getData(qrData))
-    ).subscribe(
-      res => {
-        if (res.body) {
-          this.parseFnsData(res.body.document.receipt);
-        }
+    ).subscribe(res => {
+      if (res.status === 202) {
+        this.message.add({
+          life: 10000,
+          severity: 'info',
+          summary: 'Обработка',
+          detail: 'Чек найден, но не обработан'
+        });
       }
-    );
+
+      if (res.body) {
+        this.form.patchValue({
+          date: new Date(qrData.t),
+          amount: (this.form.value.amount || 0) + qrData.s / 100
+        });
+        this.parseFnsData(res.body.document.receipt);
+      }
+    });
   }
 
-  openAuthDialog(qrData: QRData) {
+  openAuthDialog() {
     this.dialog.open(FnsDialogComponent, {
       header: 'ФНС',
       data: {
@@ -218,10 +238,15 @@ export class RecordManageComponent implements OnInit {
     ).subscribe(
       res => {
         if (res instanceof HttpResponse) {
-          this.getData(qrData);
-        }
-        if (res instanceof HttpErrorResponse) {
-          this.openAuthDialog(qrData);
+          this.getData(this.qrData);
+        } else if (res instanceof FnsRequestError) {
+          this.message.add({
+            life: 10000,
+            severity: 'error',
+            summary: 'Ошибка',
+            detail: res.message
+          });
+          this.openAuthDialog();
         }
       }
     );
@@ -229,47 +254,25 @@ export class RecordManageComponent implements OnInit {
 
   parseFnsData(receipt: Receipt) {
     const items: ReceiptItem[] = receipt.items;
-    const amount = this.form.controls.amount;
-    let products = this.record.products;
-
-    if (!products) {
-      products = this.record.products = [];
-    }
 
     items.forEach(item => {
       const product = new Product({
         name: item.name.replace(/^[0-9*?]+[\s\.]+/, ''),
-        quantity: item.quantity,
+        quantity: +(Number(item.quantity).toFixed(2)),
         price: item.price
       });
-      const existsProduct = products.find(p => p.name === product.name && p.price === product.price);
+      const existsProduct = this.record.products.find(p => p.name === product.name && p.price === product.price);
 
       if (existsProduct) {
-        existsProduct.quantity += product.quantity;
+        product.quantity += existsProduct.quantity;
+        this.recordService.updateProduct({
+          old: existsProduct,
+          new: product
+        });
       } else {
-        products.push(product);
+        this.recordService.createProduct(product);
       }
-    });
-
-    amount.setValue((amount.value || 0) + receipt.totalSum / 100);
-  }
-
-  selectCategory(category: Category) {
-    Category.findAll({
-      where: {
-        parentId: category.id
-      }
-    }).then(subctgs => {
-      const subctgControl = this.form.controls.subcategory;
-
-      this.subcategories = subctgs;
-      subctgControl.reset();
-
-      if (subctgs.length) {
-        subctgControl.enable();
-      } else {
-        subctgControl.disable();
-      }
+      this.setAmountValidators();
     });
   }
 
@@ -283,7 +286,7 @@ export class RecordManageComponent implements OnInit {
 
     record.categoryId = values.category.id;
     record.userId = values.user.id;
-    record.amount = values.amount;
+    record.amount = +(Number(values.amount).toFixed(2));
     record.type = values.type;
     record.date = values.date;
     record.note = values.note;
@@ -292,9 +295,9 @@ export class RecordManageComponent implements OnInit {
         ? values.subcategory.id
         : null;
 
-    this.saveRecord(record)
-      .then(_ => this.close())
-      .catch(_ => this.message.add({
+    this.recordService.save()
+      .then(() => { this.close() })
+      .catch(() => this.message.add({
         life: 10000,
         severity: 'error',
         summary: 'Ошибка',
@@ -302,33 +305,7 @@ export class RecordManageComponent implements OnInit {
       }));
   }
 
-  async saveRecord(record: Record) {
-    let transaction: Transaction;
-    let result: Record;
-
-    try {
-      transaction = await this.db.connection.transaction();
-      result = await record.save();
-
-      if (this.isExpense() && record.products && record.products.length) {
-        const arrSaves = record.products.map(p => {
-          p.recordId = result.id;
-
-          return p.save();
-        });
-
-        await Promise.all(arrSaves);
-      }
-      await transaction.commit();
-    } catch (err) {
-      if (err) {
-        await transaction.rollback();
-        throw err;
-      }
-    }
-  }
-
   close() {
-    this.location.back();
+    this.router.navigate(['/pages/records']);
   }
 }

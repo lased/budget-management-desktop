@@ -1,9 +1,18 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 
-import { FnsService } from 'src/app/core/services/fns.service';
-import { TypeFnsForm } from './fns.interface';
+import { FnsService } from '@core/services/fns.service';
+import { TypeFnsForm, FnsRequestError } from './fns.interface';
+import { InputComponentOptions } from '../input/input.interface';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+
+interface Link {
+  type: TypeFnsForm;
+  label: string;
+  show: () => boolean;
+}
 
 @Component({
   selector: 'app-fns-form',
@@ -12,23 +21,23 @@ import { TypeFnsForm } from './fns.interface';
 })
 export class FnsComponent implements OnInit {
   form: FormGroup;
+  formInputs: (InputComponentOptions & { show: () => boolean, getControl: () => FormControl })[];
+  links: Link[];
 
-  private _type: TypeFnsForm = 'login';
+  private _type: TypeFnsForm = 'login'
   @Input()
   get type() {
     return this._type;
   }
-
   set type(type: TypeFnsForm) {
     this._type = type;
     this.setForm(type);
-    this.typeChange.emit(type);
   }
 
-  @Output() close = new EventEmitter();
+  @Output() closeEvent = new EventEmitter();
   @Output() typeChange = new EventEmitter<TypeFnsForm>();
-  @Output() success = new EventEmitter<HttpResponse<any>>();
-  @Output() error = new EventEmitter<HttpErrorResponse>();
+  @Output() successEvent = new EventEmitter<HttpResponse<any>>();
+  @Output() errorEvent = new EventEmitter<FnsRequestError>();
 
   constructor(
     private fb: FormBuilder,
@@ -37,10 +46,35 @@ export class FnsComponent implements OnInit {
 
   ngOnInit() {
     this.setForm(this.type);
+    this.formInputs = [
+      {
+        show: () => this.type === 'register', label: 'Email',
+        getControl: () => this.form.controls.email as FormControl
+      },
+      {
+        show: () => this.type === 'register', label: 'Имя',
+        getControl: () => this.form.controls.name as FormControl
+      },
+      {
+        show: () => true, label: 'Номер телефона', placeholder: '+7 (123) 456-78-90',
+        getControl: () => this.form.controls.phone as FormControl, mask: '+7 (999) 999-99-99'
+      },
+      {
+        show: () => this.type === 'login', type: 'password', label: 'Пароль',
+        getControl: () => this.form.controls.password as FormControl
+      },
+    ];
+    this.links = [
+      { type: 'login', label: 'Авторизация', show: () => this.type !== 'login' },
+      { type: 'register', label: 'Регистрация', show: () => this.type !== 'register' },
+      { type: 'restore', label: 'Забыли пароль?', show: () => this.type !== 'restore' }
+    ];
   }
 
-  link(type: TypeFnsForm) {
+  setType(type: TypeFnsForm) {
     this.type = type;
+    this.typeChange.emit(type);
+    this.setForm(type);
   }
 
   setForm(type: TypeFnsForm) {
@@ -73,15 +107,14 @@ export class FnsComponent implements OnInit {
     const values = this.form.value;
 
     values.phone = values.phone.replace(/[^0-9+]/g, '');
-
     this.fns[this.type](values).subscribe(
-      res => this.success.emit(res),
-      err => this.error.emit(err)
+      res => this.successEvent.emit(res),
+      (err: FnsRequestError) => this.errorEvent.emit(err)
     );
   }
 
-  closeEvent() {
-    this.close.emit();
+  close() {
+    this.closeEvent.emit();
   }
 
 }

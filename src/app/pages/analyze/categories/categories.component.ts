@@ -12,8 +12,7 @@ import { User } from 'src/app/core/models/user';
 
 @Component({
   selector: 'app-categories-analyze',
-  templateUrl: './categories.component.html',
-  styleUrls: ['./categories.component.scss']
+  templateUrl: './categories.component.html'
 })
 export class CategoriesAnalyzeComponent implements OnInit {
   doughnutIncomeChart$: Promise<any>;

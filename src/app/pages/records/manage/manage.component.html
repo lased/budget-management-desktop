@@ -19,27 +19,11 @@
       <button class="ui-button-success ui-button-rounded" type="button" (click)="openQrDialog()" pButton
         icon="pi pi-camera" label="Загрузить данные с чека"></button>
     </div>
-    <div *ngIf="isExpense() && record.products && record.products.length" class="p-col-12">
+    <div *ngIf="isExpense()" class="p-col-12">
       <p-accordion>
         <p-accordionTab header="Товары и услуги ({{ record.products.length }})">
-          <p-table [value]="record.products">
-            <ng-template pTemplate="header">
-              <tr>
-                <th>Наименование</th>
-                <th>Количество</th>
-                <th>Цена</th>
-                <th>Сумма</th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-product>
-              <tr>
-                <td>{{ product.name }}</td>
-                <td>{{ product.quantity }}</td>
-                <td>{{ helpers.formatCurrency(product.price / 100) }}</td>
-                <td>{{ helpers.formatCurrency((product.price * product.quantity) / 100) }}</td>
-              </tr>
-            </ng-template>
-          </p-table>
+          <app-products [list]="record.products" (createEvent)="createProduct($event)"
+            (updateEvent)="updateProduct($event)" (deleteEvent)="deleteProduct($event)"></app-products>
         </p-accordionTab>
       </p-accordion>
     </div>
@@ -48,7 +32,7 @@
       </app-input>
     </div>
     <div class="p-col-6">
-      <app-input type="number" label="Сумма (руб.)" [control]="form.controls.amount">
+      <app-input type="number" label="Сумма ({{ helpers.getCurrencySymbol() }})" [control]="form.controls.amount">
       </app-input>
     </div>
   </div>

@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'primeng/api';
 
 import { UserManageComponent } from './manage/manage.component';
 import { User } from 'src/app/core/models/user';
 
 @Component({
   selector: 'app-users',
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss']
+  templateUrl: './users.component.html'
 })
 export class UsersComponent implements OnInit {
   users$: Promise<User[]>;
