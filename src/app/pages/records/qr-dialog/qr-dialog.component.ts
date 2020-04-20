@@ -11,13 +11,13 @@ import { QRData } from '@core/interfaces';
 })
 export class QrDialogComponent {
     constructor(
-        private dialogref: DynamicDialogRef
+        private dialogRef: DynamicDialogRef
     ) { }
 
     dataFromQrCode(data: string) {
         const qrData = this.parseQrCode(data);
 
-        this.dialogref.close(qrData);
+        this.dialogRef.close(qrData);
     }
 
     parseQrCode(data: string): QRData {
@@ -32,8 +32,12 @@ export class QrDialogComponent {
 
             qrData.s = +qrData.s;
             qrData.n = +qrData.n;
-            qrData.t = qrData.t.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, '$1-$2-$3T$4:$5:$6');
+            qrData.t = qrData.t.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})?$/, '$1-$2-$3T$4:$5:$6');
             qrData.s *= 100;
+
+            if (qrData.t[qrData.t.length - 1] === ':') {
+                qrData.t += '00';
+            }
 
             return qrData;
         } catch (_) {
