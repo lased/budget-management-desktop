@@ -1,7 +1,10 @@
-<div [formGroup]="form">
-  <p-selectButton [options]="types" formControlName="type" (onChange)="changeType($event.value)" styleClass="p-grid">
-  </p-selectButton>
-  <div class="p-grid">
+<div [formGroup]="form" class="p-grid p-nogutter">
+  <div class="p-col-12">
+    <p-selectButton [options]="types" formControlName="type" (onChange)="changeType($event.value)"
+      styleClass="p-grid p-nogutter">
+    </p-selectButton>
+  </div>
+  <div class="p-grid p-nogutter p-col-12">
     <div class="p-col-6">
       <ng-container *ngTemplateOutlet="list;context:{list:categories,parent:true}"></ng-container>
     </div>
@@ -13,22 +16,27 @@
 </div>
 
 <ng-template #list let-parent="parent" let-categories="list">
-  <p-listbox [options]="categories" [listStyle]="{'height': 'calc(100vh - 200px)'}" [(ngModel)]="parent ? category : subcategory"
-    (onChange)="selectedCategory($event.value)">
-    <ng-template let-category pTemplate="item">
-      {{ category.label }}
-    </ng-template>
-  </p-listbox>
-  <div class="p-grid p-justify-around">
-    <p-button label="Добавить" styleClass="p-col p-nogutter ui-button-success" icon="pi pi-plus"
-      (onClick)="createOrUpdateCategory(parent)" [disabled]="!category && !parent">
-    </p-button>
-    <p-button label="Изменить" styleClass="p-col p-nogutter" icon="pi pi-pencil"
-      (onClick)="createOrUpdateCategory(parent, parent ? category : subcategory)"
-      [disabled]="!category || !parent && !subcategory">
-    </p-button>
-    <p-button label="Удалить" styleClass="p-col p-nogutter ui-button-danger" icon="pi pi-times"
-      (onClick)="deleteCategory(parent ? category : subcategory)" [disabled]="!category || !parent && !subcategory">
-    </p-button>
+  <div class="p-grid p-dir-col p-nogutter">
+    <div class="list">
+      <p-listbox [options]="categories" [(ngModel)]="parent ? category : subcategory"
+        (onChange)="selectedCategory($event.value)" [listStyle]="{height: '300px'}">
+        <ng-template let-category pTemplate="item">
+          {{ category.label }}
+        </ng-template>
+      </p-listbox>
+    </div>
+
+    <div class="p-grid p-justify-around p-nogutter">
+      <p-button label="Добавить" styleClass="ui-button-success" icon="pi pi-plus"
+        (onClick)="createOrUpdateCategory(parent)" [disabled]="!category && !parent">
+      </p-button>
+      <p-button label="Изменить" icon="pi pi-pencil"
+        (onClick)="createOrUpdateCategory(parent, parent ? category : subcategory)"
+        [disabled]="!category || !parent && !subcategory">
+      </p-button>
+      <p-button label="Удалить" styleClass="ui-button-danger" icon="pi pi-times"
+        (onClick)="deleteCategory(parent ? category : subcategory)" [disabled]="!category || !parent && !subcategory">
+      </p-button>
+    </div>
   </div>
 </ng-template>

@@ -8,7 +8,8 @@ import { CategoryManageComponent } from './manage/manage.component';
 
 @Component({
   selector: 'app-categories',
-  templateUrl: './categories.component.html'
+  templateUrl: './categories.component.html',
+  styleUrls: ['./categories.component.scss']
 })
 export class CategoriesComponent implements OnInit {
   form: FormGroup;
@@ -81,7 +82,6 @@ export class CategoriesComponent implements OnInit {
     }
 
     this.dialog.open(CategoryManageComponent, {
-      width: '50%',
       header,
       data
     }).onClose.subscribe((ctg: Category) => {

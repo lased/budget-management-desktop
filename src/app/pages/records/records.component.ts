@@ -15,7 +15,6 @@ import { RecordType } from '@app/core/interfaces';
   templateUrl: './records.component.html'
 })
 export class RecordsComponent implements OnInit {
-  loading = false;
   helpers = Helpers;
 
   records: Record[];
@@ -23,6 +22,7 @@ export class RecordsComponent implements OnInit {
   actionsCallback: TableActions;
   totalRecords: number;
   event: LazyLoadEvent;
+  loading: boolean;
 
   constructor(
     private router: Router
