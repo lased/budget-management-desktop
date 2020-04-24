@@ -1,23 +1,30 @@
-<div class="p-grid">
-  <div class="p-col-12">
+<div class="p-grid p-dir-col">
+  <div class="p-col-12" *ngIf="label">
     <label>{{ label }}:</label>
   </div>
   <div class="p-col-12">
     <ng-container *ngIf="mask; else elseBlock">
-      <p-inputMask characterPattern="[0-9]+" [mask]="mask" [formControl]="control" [placeholder]="placeholder || label"></p-inputMask>
+      <p-inputMask characterPattern="[0-9]+" [mask]="mask" [formControl]="control" [placeholder]="placeholder || label">
+      </p-inputMask>
     </ng-container>
     <ng-template #elseBlock>
       <input *ngIf="type === 'text' || type === 'number' || type === 'password'" [placeholder]="placeholder || label"
         [formControl]="control" [type]="type" pInputText [placeholder]="placeholder || label"
-        [class.ng-dirty.ng-invalid]="control.invalid && control.touched">
-      <p-dropdown *ngIf="type === 'select'" [placeholder]="placeholder || label" [style]="{width: '100%'}"
+        [class.ng-dirty.ng-invalid]="control.invalid && control.touched" [class]="'app-input__' + type">
+      <p-dropdown *ngIf="type === 'select'" [placeholder]="placeholder || label" styleClass="app-input__select"
         (onChange)="selectedOption($event)" [class.ng-dirty.ng-invalid]="control.invalid && control.touched"
         [autoDisplayFirst]="false" [optionLabel]="optionLabel" [options]="options" [formControl]="control">
       </p-dropdown>
-      <p-calendar *ngIf="type === 'datetime'" [style]="{width: '100%'}" [placeholder]="placeholder || label"
-        [formControl]="control" [showTime]="true" dateFormat="dd/mm/yy">
+      <p-calendar *ngIf="type === 'datetime'" [placeholder]="placeholder || label" [formControl]="control"
+        [showTime]="true" dateFormat="dd/mm/yy" [locale]="ru" [readonlyInput]="true" styleClass="app-input__datetime"
+        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'">
       </p-calendar>
-      <textarea *ngIf="type === 'textarea'" class="app-textarea" [placeholder]="placeholder || label"
+      <p-calendar *ngIf="type === 'daterange'" [placeholder]="placeholder || label" [formControl]="control"
+        dateFormat="dd/mm/yy" [locale]="ru" [readonlyInput]="true" styleClass="app-input__daterange"
+        [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" selectionMode="range" [readonlyInput]="true"
+        (onClose)="selectedOption($event)">
+      </p-calendar>
+      <textarea *ngIf="type === 'textarea'" class="app-input__textarea" [placeholder]="placeholder || label"
         [formControl]="control" pInputTextarea></textarea>
     </ng-template>
   </div>

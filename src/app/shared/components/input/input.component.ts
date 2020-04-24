@@ -6,8 +6,7 @@ import { SelectItem } from 'primeng/api';
 
 @Component({
   selector: 'app-input',
-  templateUrl: './input.component.html',
-  styleUrls: ['./input.component.scss']
+  templateUrl: './input.component.html'
 })
 export class InputComponent implements OnInit {
   @Input() label = '';
@@ -24,7 +23,7 @@ export class InputComponent implements OnInit {
     if (value && (
       value === 'text' || value === 'select' ||
       value === 'datetime' || value === 'number' ||
-      value === 'textarea' || value === 'password'
+      value === 'textarea' || value === 'password' || 'daterange'
     )) {
       this._type = value;
     } else {
@@ -67,7 +66,15 @@ export class InputComponent implements OnInit {
 
   @Output() selected = new EventEmitter();
 
-  ngOnInit() { }
+  ru: any;
+
+  ngOnInit() {
+    this.ru = {
+      firstDayOfWeek: 1,
+      dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+      monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+    };
+  }
 
   selectedOption(event: any) {
     this.selected.emit(event);

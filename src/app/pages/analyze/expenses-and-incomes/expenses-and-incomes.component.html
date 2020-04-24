@@ -1,25 +1,35 @@
 <div class="p-grid">
-  <div class="p-col-6">
-    <p-chart *ngIf="pieChart$ | async as pieChart; else loader" type="pie" [data]="pieChart.data"
-      [options]="pieChart.options"></p-chart>
+  <div class="p-col-12 p-grid p-justify-center p-nogutter">
+    <div class="p-col-md-6 p-col-xl-4">
+      <div class="period">Период выборки данных:</div>
+      <app-input type="daterange" [control]="periodControl" placeholder="Выберите период"
+        (selected)="selectedPeriod($event)">
+      </app-input>
+    </div>
   </div>
-  <div class="p-col-6 p-grid p-justify-center p-align-center">
-    <span class="balance p-grid p-justify-center p-align-center"
-      [style.background-color]="balance >= 0 ? '#34A835' : '#e91224'">
-      {{ helpers.formatCurrency(balance) }}
-    </span>
+  <div class="p-col-6">
+    <ng-template [ngTemplateOutlet]="loading ? loader : null"></ng-template>
+    <p-chart *ngIf="!loading" type="pie" [data]="pieChart.data" [options]="pieChart.options"></p-chart>
+  </div>
+  <div class="p-col-6 p-grid p-dir-col p-justify-center p-align-center">
+    <ng-template [ngTemplateOutlet]="loading ? loader : null"></ng-template>
+    <ng-container *ngIf="!loading">
+      <span class="balance__text">Баланс:</span>
+      <span [class]="'balance__number p-grid p-nogutter p-justify-center p-align-center ' + (
+        balance >= 0 
+        ? 'balance__number--positive' 
+        : 'balance__number--negative'
+      )">
+        {{ helpers.formatCurrency(balance) }}
+      </span>
+    </ng-container>
   </div>
   <div class="p-col-12">
-    <ng-container *ngIf="records$ | async as records; else loader">
-      <app-table *ngIf="records.length; else emptyTable" [columns]="recordColumns" [value]="records"></app-table>
-    </ng-container>
+    <app-table [lazy]="true" [loading]="loading" [columns]="recordColumns" [value]="records" [actions]="false"
+      [totalRecords]="totalRecords" (lazyLoad)="onLazyLoad($event)"></app-table>
   </div>
 </div>
 
 <ng-template #loader>
   <app-loader></app-loader>
-</ng-template>
-
-<ng-template #emptyTable>
-  <app-empty-list text="Список записей пуст (выберите элемент на диаграмме)"></app-empty-list>
 </ng-template>

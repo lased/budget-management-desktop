@@ -1,16 +1,32 @@
-.ui-inputtext {
-  width: 100%;
-}
+.app-input {
 
-.ui-dropdown {
-  width: 100%;
-  padding: 0.2rem;
-}
+  &__textarea,
+  &__text,
+  &__password,
+  &__number,
+  &__select,
+  &__datetime,
+  &__datetime .ui-inputtext,
+  &__daterange,
+  &__daterange .ui-inputtext {
+    width: 100%;
+  }
 
-body .ui-calendar {
-  .ui-datepicker {
-    padding: 0;
-    min-width: auto;
-    top: auto !important;
+  &__select {
+    padding: 0.2rem;
+  }
+
+  &__textarea {
+    min-height: 40px;
+    resize: vertical;
+  }
+
+  &__datetime,
+  &__daterange {
+    .ui-datepicker {
+      padding: 0;
+      min-width: auto;
+      top: auto !important;
+    }
   }
 }

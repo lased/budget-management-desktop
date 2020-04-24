@@ -19,7 +19,7 @@
   <div class="p-grid p-dir-col p-nogutter">
     <div class="list">
       <p-listbox [options]="categories" [(ngModel)]="parent ? category : subcategory"
-        (onChange)="selectedCategory($event.value)" [listStyle]="{height: '300px'}">
+        (onChange)="selectedCategory($event.value)" [listStyle]="{height: '300px'}" styleClass="app-input__text">
         <ng-template let-category pTemplate="item">
           {{ category.label }}
         </ng-template>

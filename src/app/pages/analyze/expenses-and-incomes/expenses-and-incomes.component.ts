@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { LazyLoadEvent } from 'primeng/api';
+import { Order, Op } from 'sequelize';
 import * as Chart from 'chart.js';
 
-import { Helpers } from 'src/app/core/helpers.class';
-import { RecordType } from 'src/app/core/interfaces';
-import { TableColumn } from 'src/app/shared/components/table/table.interface';
+import { Helpers } from '@core/helpers.class';
+import { RecordType } from '@core/interfaces';
+import { TableColumn } from '@shared/components/table/table.interface';
 
-import { Record } from 'src/app/core/models/record';
-import { Category } from 'src/app/core/models/category';
-import { User } from 'src/app/core/models/user';
+import { Record } from '@core/models/record';
+import { Category } from '@core/models/category';
+import { User } from '@core/models/user';
 
 @Component({
   selector: 'app-expenses-and-incomes-analyze',
@@ -16,16 +19,25 @@ import { User } from 'src/app/core/models/user';
 })
 export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
   helpers = Helpers;
-  records$: Promise<Record[]>;
   balance: number;
-  recordColumns: TableColumn[];
+  periodControl: FormControl;
+  pieChart: Chart;
 
-  pieChart$: Promise<any>;
+  records: Record[];
+  recordColumns: TableColumn[];
+  totalRecords: number;
+  event: LazyLoadEvent;
+  loading: boolean;
 
   constructor() { }
 
   ngOnInit() {
-    this.pieChart$ = this.getPieChart();
+    const currentDate = new Date();
+    const previousDate = new Date();
+
+    previousDate.setMonth(currentDate.getMonth() - 1)
+
+    this.periodControl = new FormControl([previousDate, currentDate]);
     this.recordColumns = [
       { field: 'type', header: 'Тип', span: .6, format: type => type === RecordType.income ? 'Доход' : 'Расход' },
       { field: 'category.name', header: 'Категория' },
@@ -35,28 +47,65 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
       { field: 'amount', header: 'Сумма', format: amount => Helpers.formatCurrency(amount) },
       { field: 'note', header: 'Примечание', sortable: false }
     ];
-    this.records$ = this.getRecords();
+    this.loading = true;
   }
 
-  getRecords(): Promise<Record[]> {
-    return Record.findAll({
-      include: [
-        { model: Category, as: 'category' },
-        { model: Category, as: 'subcategory' },
-        { model: User, as: 'user' }
-      ],
-      order: [['date', 'DESC']]
-    });
+  onLazyLoad(event: LazyLoadEvent) {
+    this.event = event;
+    this.getRecords(event);
   }
 
-  async getPieChart(): Promise<Chart> {
-    const self = this;
-    const [income, expense] = await Promise.all([
-      Record.sum('amount', { where: { type: RecordType.income } }),
-      Record.sum('amount', { where: { type: RecordType.expense } })
-    ]);
+  selectedPeriod() {
+    this.getRecords(this.event);
+  }
 
-    self.balance = income - expense;
+  getRecords(event: LazyLoadEvent) {
+    const include = [
+      { model: Category, as: 'category' },
+      { model: Category, as: 'subcategory' },
+      { model: User, as: 'user' }
+    ];
+    const [prevDate, nextDate] = this.periodControl.value as Date[];
+    const fromDate = this.helpers.formatDate(prevDate, 'yyyy-MM-dd');
+    let order: Order = [['date', 'DESC']];
+    let dateFilter = { [Op.gte]: fromDate };
+
+    if (event.sortField) {
+      const field = event.sortField.split('.');
+      const sortOrder = event.sortOrder === 1 ? 'ASC' : 'DESC';
+
+      order = field.length > 1
+        ? [[include.find(i => i.as === field[0]), field[1], sortOrder]]
+        : [[field[0], sortOrder]];
+    }
+
+    if (nextDate) {
+      dateFilter[Op.lte] = this.helpers.formatDate(nextDate, 'yyyy-MM-dd') + ' 23:59';
+    }
+
+    this.loading = true;
+    setTimeout(() => {
+      Record.findAndCountAll({
+        include,
+        order,
+        limit: event.rows,
+        offset: event.first,
+        where: { date: dateFilter }
+      }).then(({ rows, count }) => {
+        this.totalRecords = count;
+        this.records = rows;
+        this.loading = false;
+        this.pieChart = this.getPieChart();
+      });
+    }, 500);
+  }
+
+  getPieChart(): Chart {
+    const fn = (type) => this.records.filter(val => val.type === type).reduce((acc, val) => acc + val.amount, 0);
+    const income = fn(RecordType.income);
+    const expense = fn(RecordType.expense);
+
+    this.balance = income - expense;
 
     return {
       data: {

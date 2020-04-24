@@ -1,5 +1,6 @@
 <form [formGroup]="form" (ngSubmit)="save()" class="app-form">
-  <p-selectButton [options]="types" formControlName="type" (onChange)="changeType($event.value)" styleClass="p-grid">
+  <p-selectButton [options]="types" formControlName="type" (onChange)="changeType($event.value)"
+    [style]="{marginBottom: '10px'}" styleClass="p-grid p-nogutter">
   </p-selectButton>
 
   <app-input type="select" optionLabel="name" label="Пользователь" [options]="users" [control]="form.controls.user">
