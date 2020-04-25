@@ -1,0 +1,12 @@
+.period {
+  &__text {
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 3rem;
+  }
+
+  &__range {
+    width: 175px;
+    margin: auto;
+  }
+}

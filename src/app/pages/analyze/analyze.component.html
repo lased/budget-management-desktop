@@ -1,0 +1,15 @@
+<p-tabMenu [model]="items"></p-tabMenu>
+
+<div class="p-grid p-nogutter p-dir-col p-align-center">
+  <div *ngIf="currentPath !== 'forecast'" class="period">
+    <div class="period__text">Период выборки данных: </div>
+    <div class="period__range">
+      <app-input type="daterange" [control]="periodControl" placeholder="Выберите период"
+        (selected)="selectedPeriod($event)">
+      </app-input>
+    </div>
+  </div>
+  <div class="p-col-11">
+    <router-outlet></router-outlet>
+  </div>
+</div>
