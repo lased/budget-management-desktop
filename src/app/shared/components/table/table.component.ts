@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ContentChild, TemplateRef, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { SortMeta, LazyLoadEvent } from 'primeng/api';
 
 import { TableColumn, TableActions } from './table.interface';
@@ -51,7 +51,7 @@ export class TableComponent {
     this.lazyLoad.emit(event);
   }
 
-  checkFunction(fun: any){
+  checkFunction(fun: any) {
     return fun && typeof fun === 'function';
   }
 }

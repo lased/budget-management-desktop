@@ -12,10 +12,9 @@ export class PagesComponent implements OnInit {
 
   ngOnInit() {
     this.items = [
-      { label: 'Расходы и доходы', icon: 'pi pi-money-bill', routerLink: ['/pages/records'] },
+      { label: 'Панель инструментов', icon: 'pi pi-chart-bar', routerLink: ['/pages/analyze'] },
       { label: 'Категории', icon: 'pi pi-list', routerLink: ['/pages/categories'] },
-      { label: 'Пользователи', icon: 'pi pi-users', routerLink: ['/pages/users'] },
-      { label: 'Анализ', icon: 'pi pi-chart-bar', routerLink: ['/pages/analyze'] }
+      { label: 'Пользователи', icon: 'pi pi-users', routerLink: ['/pages/users'] }
     ];
   }
 

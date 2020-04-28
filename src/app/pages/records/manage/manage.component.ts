@@ -1,7 +1,8 @@
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { switchMap, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { SelectItem, MessageService, DialogService } from 'primeng/api';
@@ -43,7 +44,7 @@ export class RecordManageComponent implements OnInit {
     private fb: FormBuilder,
     private fns: FnsService,
     private recordService: RecordService,
-    private router: Router,
+    private location: Location,
     private dialog: DialogService,
     private message: MessageService,
     private activatedRoute: ActivatedRoute
@@ -177,7 +178,7 @@ export class RecordManageComponent implements OnInit {
       if (qrData) {
         this.qrData = qrData;
         this.getData(this.qrData);
-      } else {
+      } else if (qrData === null) {
         this.message.add({
           life: 10000,
           severity: 'error',
@@ -306,6 +307,6 @@ export class RecordManageComponent implements OnInit {
   }
 
   close() {
-    this.router.navigate(['/pages/records']);
+    this.location.back();
   }
 }

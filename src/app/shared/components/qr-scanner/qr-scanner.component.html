@@ -3,8 +3,9 @@
     <label>Выберите камеру:</label>
   </div>
   <div class="p-col-12">
-    <p-dropdown [placeholder]="cameras.length ? 'Выберите камеру' : 'Список пуст'" [disabled]="!cameras.length"
-      (onChange)="useCamera($event.value)" [options]="cameras" [(ngModel)]="chooseCameraControl" optionLabel="label">
+    <p-dropdown [style]="{'width':'100%'}" [placeholder]="cameras.length ? 'Выберите камеру' : 'Список пуст'"
+      [disabled]="!cameras.length" (onChange)="useCamera($event.value)" [options]="cameras"
+      [(ngModel)]="chooseCameraControl" optionLabel="label">
     </p-dropdown>
   </div>
 </div>

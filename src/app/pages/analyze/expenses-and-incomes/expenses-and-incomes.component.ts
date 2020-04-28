@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { LazyLoadEvent } from 'primeng/api';
 import { Order, Op } from 'sequelize';
 import * as Chart from 'chart.js';
 
 import { Helpers } from '@core/helpers.class';
 import { RecordType } from '@core/interfaces';
-import { TableColumn } from '@shared/components/table/table.interface';
+import { TableColumn, TableActions } from '@shared/components/table/table.interface';
 
 import { Record } from '@core/models/record';
 import { Category } from '@core/models/category';
@@ -26,15 +27,22 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
   records: Record[];
   recordColumns: TableColumn[];
   totalRecords: number;
+  actionsCallback: TableActions;
   event: LazyLoadEvent;
   loading: boolean;
 
   constructor(
+    private router: Router,
     private analyzeService: AnalyzeService
   ) { }
 
   ngOnInit() {
     this.loading = true;
+    this.actionsCallback = {
+      onCreate: () => this.create(),
+      onDelete: (record: Record) => this.delete(record.id),
+      onUpdate: (record: Record) => this.update(record.id)
+    };
     this.recordColumns = [
       { field: 'type', header: 'Тип', span: .6, format: type => type === RecordType.income ? 'Доход' : 'Расход' },
       { field: 'category.name', header: 'Категория' },
@@ -47,8 +55,6 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
     this.analyzeService.getPeriod().subscribe(period => {
       this.period = period;
       this.pieChart$ = this.getPieChart(period);
-      console.log(123);
-      
 
       if (this.event) {
         this.getRecords(this.event);
@@ -91,6 +97,18 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
       this.records = rows;
       this.loading = false;
     });
+  }
+
+  create() {
+    this.router.navigate(['/pages/records/create']);
+  }
+
+  update(id: number) {
+    this.router.navigate(['/pages/records/update', id]);
+  }
+
+  delete(id: number) {
+    Record.destroy({ where: { id } }).then(_ => this.getRecords(this.event));
   }
 
   async getPieChart(dateFilter: DateFilter): Promise<Chart> {

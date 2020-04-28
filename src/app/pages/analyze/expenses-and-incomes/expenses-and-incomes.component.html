@@ -16,8 +16,8 @@
     </ng-container>
   </div>
   <div class="p-col-12 table">
-    <app-table [lazy]="true" [loading]="loading" [columns]="recordColumns" [value]="records" [actions]="false"
-      [totalRecords]="totalRecords" (lazyLoad)="onLazyLoad($event)"></app-table>
+    <app-table [lazy]="true" [loading]="loading" [columns]="recordColumns" [value]="records"
+      [actionsCallback]="actionsCallback" [totalRecords]="totalRecords" (lazyLoad)="onLazyLoad($event)"></app-table>
   </div>
 </div>
 
