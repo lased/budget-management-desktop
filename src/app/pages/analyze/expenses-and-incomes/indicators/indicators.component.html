@@ -1,0 +1,16 @@
+<div class="p-grid">
+  <div class="p-col-6">
+    <apx-chart *ngIf="!loading; else loader" [tooltip]="pieChart.tooltip" [colors]="pieChart.colors"
+      [legend]="pieChart.legend" [series]="pieChart.series" [chart]="pieChart.chart" [title]="pieChart.title"
+      [labels]="pieChart.labels">
+    </apx-chart>
+  </div>
+  <div class="p-col-6">
+    <apx-chart [series]="balanceChart.series" [chart]="balanceChart.chart" [plotOptions]="balanceChart.plotOptions"
+      [labels]="balanceChart.labels" [fill]="balanceChart.fill" [colors]="balanceChart.colors"></apx-chart>
+  </div>
+</div>
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>

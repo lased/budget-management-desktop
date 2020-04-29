@@ -1,3 +1,24 @@
+import {
+    ApexChart,
+    ApexAnnotations,
+    ApexDataLabels,
+    ApexAxisChartSeries,
+    ApexStroke,
+    ApexNonAxisChartSeries,
+    ApexLegend,
+    ApexFill,
+    ApexTooltip,
+    ApexPlotOptions,
+    ApexResponsive,
+    ApexXAxis,
+    ApexGrid,
+    ApexYAxis,
+    ApexTitleSubtitle,
+    ApexTheme,
+    ApexStates
+} from 'ng-apexcharts';
+
+
 export enum RecordType {
     income = 0,
     expense = 1
@@ -33,4 +54,26 @@ export interface FnsAccount {
     email?: string;
     name?: string;
     password: string;
+}
+
+export interface AppChart {
+    chart?: ApexChart;
+    annotations?: ApexAnnotations;
+    colors?: string[];
+    dataLabels?: ApexDataLabels;
+    series?: ApexAxisChartSeries | ApexNonAxisChartSeries;
+    stroke?: ApexStroke;
+    labels?: string[];
+    legend?: ApexLegend;
+    fill?: ApexFill;
+    tooltip?: ApexTooltip;
+    plotOptions?: ApexPlotOptions;
+    responsive?: ApexResponsive[];
+    xaxis?: ApexXAxis;
+    yaxis?: ApexYAxis | ApexYAxis[];
+    grid?: ApexGrid;
+    states?: ApexStates;
+    title?: ApexTitleSubtitle;
+    subtitle?: ApexTitleSubtitle;
+    theme?: ApexTheme;
 }

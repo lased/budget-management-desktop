@@ -1,6 +1,7 @@
-<p-tabMenu [model]="items"></p-tabMenu>
-
 <div class="p-grid p-nogutter p-dir-col p-align-center">
+  <div class="p-col-12">
+    <p-tabMenu [model]="items"></p-tabMenu>
+  </div>
   <div *ngIf="currentPath !== 'forecast'" class="period">
     <div class="period__text">Период выборки данных: </div>
     <div class="period__range">

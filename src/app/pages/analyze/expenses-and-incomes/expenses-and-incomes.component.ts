@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { LazyLoadEvent } from 'primeng/api';
+import { LazyLoadEvent, MenuItem } from 'primeng/api';
 import { Order, Op } from 'sequelize';
-import * as Chart from 'chart.js';
+import { Subscription } from 'rxjs';
 
 import { Helpers } from '@core/helpers.class';
 import { RecordType } from '@core/interfaces';
@@ -18,11 +18,10 @@ import { AnalyzeService, DateFilter } from '../analyze.service';
   templateUrl: './expenses-and-incomes.component.html',
   styleUrls: ['./expenses-and-incomes.component.scss']
 })
-export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
+export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
   helpers = Helpers;
-  balance: number;
-  pieChart$: Promise<Chart>;
   period: DateFilter;
+  charts: MenuItem[];
 
   records: Record[];
   recordColumns: TableColumn[];
@@ -31,6 +30,8 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
   event: LazyLoadEvent;
   loading: boolean;
 
+  subscription: Subscription;
+
   constructor(
     private router: Router,
     private analyzeService: AnalyzeService
@@ -38,6 +39,9 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
 
   ngOnInit() {
     this.loading = true;
+    this.charts = [
+      { label: 'Индикаторы', icon: '', routerLink: ['indicators'] }
+    ];
     this.actionsCallback = {
       onCreate: () => this.create(),
       onDelete: (record: Record) => this.delete(record.id),
@@ -52,9 +56,8 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
       { field: 'amount', header: 'Сумма', format: amount => Helpers.formatCurrency(amount) },
       { field: 'note', header: 'Примечание', sortable: false }
     ];
-    this.analyzeService.getPeriod().subscribe(period => {
+    this.subscription = this.analyzeService.getPeriod().subscribe(period => {
       this.period = period;
-      this.pieChart$ = this.getPieChart(period);
 
       if (this.event) {
         this.getRecords(this.event);
@@ -73,7 +76,10 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
       { model: Category, as: 'subcategory' },
       { model: User, as: 'user' }
     ];
-    const date = this.getQueryDateFilter(this.period);
+    const date = {
+      [Op.gte]: this.period.min,
+      [Op.lte]: this.period.max
+    };
     let order: Order = [['date', 'DESC']];
 
     if (event.sortField) {
@@ -108,49 +114,13 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
   }
 
   delete(id: number) {
-    Record.destroy({ where: { id } }).then(_ => this.getRecords(this.event));
+    Record.destroy({ where: { id } }).then(_ => {
+      this.getRecords(this.event);
+      this.analyzeService.setPeriod([this.period.min, this.period.max]);
+    });
   }
 
-  async getPieChart(dateFilter: DateFilter): Promise<Chart> {
-    const date = this.getQueryDateFilter(dateFilter);
-    const [income, expense] = await Promise.all([
-      Record.sum('amount', { where: { type: RecordType.income, date } }),
-      Record.sum('amount', { where: { type: RecordType.expense, date } })
-    ]);
-
-    this.balance = income - expense;
-
-    return {
-      data: {
-        labels: ['Доходы', 'Расходы'],
-        datasets: [
-          {
-            data: [income, expense],
-            backgroundColor: [
-              '#34A835',
-              '#e91224'
-            ]
-          }
-        ],
-      },
-      options: {
-        tooltips: {
-          callbacks: {
-            label: (tooltipItem, data) => {
-              const value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-
-              return Helpers.formatCurrency(+value);
-            }
-          }
-        }
-      }
-    } as Chart;
-  }
-
-  private getQueryDateFilter(period: DateFilter) {
-    return {
-      [Op.gte]: period.min,
-      [Op.lte]: period.max
-    };
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 }

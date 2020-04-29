@@ -8,6 +8,7 @@ import { ExpensesAndIncomesAnalyzeComponent } from './expenses-and-incomes/expen
 import { CategoriesAnalyzeComponent } from './categories/categories.component';
 import { ForecastAnalyzeComponent } from './forecast/forecast.component';
 import { ProductsAnalyzeComponent } from './products/products.component';
+import { IndicatorsComponent } from './expenses-and-incomes/indicators/indicators.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { ProductsAnalyzeComponent } from './products/products.component';
     ExpensesAndIncomesAnalyzeComponent,
     CategoriesAnalyzeComponent,
     ForecastAnalyzeComponent,
-    ProductsAnalyzeComponent
+    ProductsAnalyzeComponent,
+    IndicatorsComponent
   ],
   imports: [
     SharedModule,

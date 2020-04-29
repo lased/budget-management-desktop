@@ -1,19 +1,9 @@
-<div class="p-grid">
-  <div class="p-col-6">
-    <p-chart *ngIf="pieChart$ | async as pieChart; else loader" type="pie" [data]="pieChart.data"
-      [options]="pieChart.options"></p-chart>
+<div class="p-grid p-justify-center">
+  <div class="charts-list">
+    <p-tabMenu [model]="charts"></p-tabMenu>
   </div>
-  <div class="p-col-6 p-grid p-dir-col p-justify-center p-align-center">
-    <ng-container *ngIf="pieChart$ | async as pieChart; else loader">
-      <span class="balance__text">Баланс:</span>
-      <span [class]="'balance__number p-grid p-nogutter p-justify-center p-align-center ' + (
-        balance >= 0 
-        ? 'balance__number--positive' 
-        : 'balance__number--negative'
-      )">
-        {{ helpers.formatCurrency(balance) }}
-      </span>
-    </ng-container>
+  <div class="p-col-12">
+    <router-outlet></router-outlet>
   </div>
   <div class="p-col-12 table">
     <app-table [lazy]="true" [loading]="loading" [columns]="recordColumns" [value]="records"

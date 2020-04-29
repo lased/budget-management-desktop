@@ -10,7 +10,7 @@ const routes: Routes = [
             { path: 'categories', loadChildren: () => import('./categories/categories.module').then(m => m.CategoriesModule) },
             { path: 'records', loadChildren: () => import('./records/records.module').then(m => m.RecordsModule) },
             { path: 'analyze', loadChildren: () => import('./analyze/analyze.module').then(m => m.AnalyzeModule) },
-            { path: '**', redirectTo: 'records', pathMatch: 'full' }
+            { path: '**', redirectTo: 'analyze', pathMatch: 'full' }
         ]
     }
 ];

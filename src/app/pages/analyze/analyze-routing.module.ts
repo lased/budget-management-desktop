@@ -6,11 +6,19 @@ import { CategoriesAnalyzeComponent } from './categories/categories.component';
 import { ForecastAnalyzeComponent } from './forecast/forecast.component';
 import { AnalyzeComponent } from './analyze.component';
 import { ProductsAnalyzeComponent } from './products/products.component';
+import { IndicatorsComponent } from './expenses-and-incomes/indicators/indicators.component';
 
 const routes: Routes = [
     {
         path: '', component: AnalyzeComponent, children: [
-            { path: 'expenses-and-incomes', component: ExpensesAndIncomesAnalyzeComponent },
+            {
+                path: 'expenses-and-incomes',
+                component: ExpensesAndIncomesAnalyzeComponent,
+                children: [
+                    { path: 'indicators', component: IndicatorsComponent },
+                    { path: '**', redirectTo: 'indicators', pathMatch: 'full' }
+                ]
+            },
             { path: 'categories', component: CategoriesAnalyzeComponent },
             { path: 'forecast', component: ForecastAnalyzeComponent },
             { path: 'products', component: ProductsAnalyzeComponent },

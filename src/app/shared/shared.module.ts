@@ -2,6 +2,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { NgApexchartsModule } from 'ng-apexcharts';
+import ruChart from 'apexcharts/dist/locales/ru.json';
+
 import { DialogService } from 'primeng/api';
 
 import { ToolbarModule } from 'primeng/toolbar';
@@ -29,6 +32,13 @@ import { FnsComponent } from './components/fns/fns.component';
 import { EmptyListComponent } from './components/empty-list/empty-list.component';
 import { TableComponent } from './components/table/table.component';
 
+declare const Apex: any;
+
+Apex.chart = {
+  locales: [ruChart],
+  defaultLocale: 'ru'
+};
+
 const Common = [
   CommonModule,
   FormsModule,
@@ -52,7 +62,8 @@ const UIComponents = [
   TableModule,
   AccordionModule,
   ChartModule,
-  MenubarModule
+  MenubarModule,
+  NgApexchartsModule
 ];
 
 const Components = [
