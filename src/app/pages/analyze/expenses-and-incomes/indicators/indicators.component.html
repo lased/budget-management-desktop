@@ -6,8 +6,9 @@
     </apx-chart>
   </div>
   <div class="p-col-6">
-    <apx-chart [series]="balanceChart.series" [chart]="balanceChart.chart" [plotOptions]="balanceChart.plotOptions"
-      [labels]="balanceChart.labels" [fill]="balanceChart.fill" [colors]="balanceChart.colors"></apx-chart>
+    <apx-chart *ngIf="!loading; else loader" [series]="balanceChart.series" [chart]="balanceChart.chart"
+      [plotOptions]="balanceChart.plotOptions" [labels]="balanceChart.labels" [fill]="balanceChart.fill"
+      [colors]="balanceChart.colors"></apx-chart>
   </div>
 </div>
 

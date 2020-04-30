@@ -2,11 +2,11 @@ import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 
 import { ExpensesAndIncomesAnalyzeComponent } from './expenses-and-incomes/expenses-and-incomes.component';
-import { CategoriesAnalyzeComponent } from './categories/categories.component';
 import { ForecastAnalyzeComponent } from './forecast/forecast.component';
 import { AnalyzeComponent } from './analyze.component';
 import { ProductsAnalyzeComponent } from './products/products.component';
 import { IndicatorsComponent } from './expenses-and-incomes/indicators/indicators.component';
+import { CategoriesComponent } from './categories/categories.component';
 
 const routes: Routes = [
     {
@@ -16,10 +16,10 @@ const routes: Routes = [
                 component: ExpensesAndIncomesAnalyzeComponent,
                 children: [
                     { path: 'indicators', component: IndicatorsComponent },
+                    { path: 'categories/:type', component: CategoriesComponent },
                     { path: '**', redirectTo: 'indicators', pathMatch: 'full' }
                 ]
             },
-            { path: 'categories', component: CategoriesAnalyzeComponent },
             { path: 'forecast', component: ForecastAnalyzeComponent },
             { path: 'products', component: ProductsAnalyzeComponent },
             { path: '**', redirectTo: 'expenses-and-incomes', pathMatch: 'full' }

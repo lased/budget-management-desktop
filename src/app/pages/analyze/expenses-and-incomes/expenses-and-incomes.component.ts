@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { LazyLoadEvent, MenuItem } from 'primeng/api';
+import { LazyLoadEvent, MenuItem, FilterMetadata } from 'primeng/api';
 import { Order, Op } from 'sequelize';
 import { Subscription } from 'rxjs';
 
@@ -20,6 +20,7 @@ import { AnalyzeService, DateFilter } from '../analyze.service';
 })
 export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
   helpers = Helpers;
+  filters: { [s: string]: FilterMetadata } = {};
   period: DateFilter;
   charts: MenuItem[];
 
@@ -30,7 +31,8 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
   event: LazyLoadEvent;
   loading: boolean;
 
-  subscription: Subscription;
+  periodSubscription: Subscription;
+  filtersSubscription: Subscription;
 
   constructor(
     private router: Router,
@@ -40,7 +42,9 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loading = true;
     this.charts = [
-      { label: 'Индикаторы', icon: '', routerLink: ['indicators'] }
+      { label: 'Индикаторы', icon: '', routerLink: ['indicators'] },
+      { label: 'Категории доходов', icon: '', routerLink: ['categories', RecordType.income] },
+      { label: 'Категории расходов', icon: '', routerLink: ['categories', RecordType.expense] }
     ];
     this.actionsCallback = {
       onCreate: () => this.create(),
@@ -56,12 +60,22 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
       { field: 'amount', header: 'Сумма', format: amount => Helpers.formatCurrency(amount) },
       { field: 'note', header: 'Примечание', sortable: false }
     ];
-    this.subscription = this.analyzeService.getPeriod().subscribe(period => {
+    this.periodSubscription = this.analyzeService.getPeriod().subscribe(period => {
       this.period = period;
 
       if (this.event) {
         this.getRecords(this.event);
       }
+    });
+    this.filtersSubscription = this.analyzeService.getFilters().subscribe(filters => {
+      if (!Object.keys(filters).length) {
+        this.filters = {};
+
+        return;
+      }
+
+      this.filters = { ...this.filters, ...filters };
+      this.getRecords(this.event);
     });
   }
 
@@ -80,6 +94,7 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
       [Op.gte]: this.period.min,
       [Op.lte]: this.period.max
     };
+    const filters = {};
     let order: Order = [['date', 'DESC']];
 
     if (event.sortField) {
@@ -91,13 +106,25 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
         : [[field[0], sortOrder]];
     }
 
+    if (Object.keys(this.filters).length) {
+      Object.keys(this.filters).forEach(k => {
+        const key = k.split('.').length > 1 ? `$${k}$` : k;
+
+        if (this.filters[k].value === null) {
+          delete filters[key];
+        } else {
+          filters[key] = { [Op.eq]: this.filters[k].value };
+        }
+      });
+    }
+
     this.loading = true;
     Record.findAndCountAll({
       include,
       order,
       limit: event.rows,
       offset: event.first,
-      where: { date }
+      where: { date, ...filters }
     }).then(({ rows, count }) => {
       this.totalRecords = count;
       this.records = rows;
@@ -121,6 +148,7 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.periodSubscription.unsubscribe();
+    this.filtersSubscription.unsubscribe();
   }
 }

@@ -6,7 +6,7 @@
     <router-outlet></router-outlet>
   </div>
   <div class="p-col-12 table">
-    <app-table [lazy]="true" [loading]="loading" [columns]="recordColumns" [value]="records"
+    <app-table [lazy]="true" [actionsSpan]=".7" [loading]="loading" [columns]="recordColumns" [value]="records"
       [actionsCallback]="actionsCallback" [totalRecords]="totalRecords" (lazyLoad)="onLazyLoad($event)"></app-table>
   </div>
 </div>

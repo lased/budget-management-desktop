@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, Subject } from 'rxjs';
+import { Op, Sequelize } from 'sequelize';
+import { FilterMetadata } from 'primeng/api';
+
+import { RecordType } from '@core/interfaces';
+import { Record } from '@core/models/record';
+import { Category } from '@core/models/category';
+import { Product } from '@core/models/product';
+import { Literal } from 'sequelize/types/lib/utils';
 
 export interface DateFilter {
     min?: Date;
@@ -9,6 +17,15 @@ export interface DateFilter {
 @Injectable()
 export class AnalyzeService {
     private period = new ReplaySubject<DateFilter>();
+    private filters = new Subject<{ [s: string]: FilterMetadata }>();
+
+    getFilters() {
+        return this.filters;
+    }
+
+    setFilters(filters: { [s: string]: FilterMetadata }) {
+        this.filters.next(filters);
+    }
 
     getPeriod() {
         return this.period;
@@ -34,5 +51,34 @@ export class AnalyzeService {
         this.period.next(dateFilter);
 
         return dateFilter;
+    }
+
+    getSumGroupCategory(type: RecordType, period: DateFilter, productMode: boolean, child = false): Promise<Record[]> {
+        const dateQuery = {
+            [Op.gte]: period.min,
+            [Op.lte]: period.max
+        };
+
+        return Record.findAll({
+            attributes: [
+                [
+                    Sequelize.literal(`SUM(${
+                        productMode
+                            ? 'products.price * products.quantity'
+                            : 'amount'
+                        })`), 'amount'
+                ]
+            ],
+            where: {
+                type,
+                date: dateQuery,
+                ...(child ? { subcategoryId: { [Op.not]: null } } : {})
+            },
+            include: [
+                ...(productMode ? [{ model: Product, as: 'products', required: true }] : []),
+                { model: Category, as: child ? 'subcategory' : 'category' }
+            ],
+            group: [child ? 'subcategoryId' : 'categoryId']
+        });
     }
 }

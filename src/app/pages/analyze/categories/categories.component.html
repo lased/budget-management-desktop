@@ -1,23 +1,16 @@
 <div class="p-grid">
   <div class="p-col-6">
-    <p-chart *ngIf="doughnutIncomeChart$ | async as doughnutIncomeChart; else loader" type="pie"
-      [data]="doughnutIncomeChart.data" [options]="doughnutIncomeChart.options"></p-chart>
+    <apx-chart *ngIf="!loading; else loader" [series]="categoryChart.series" [chart]="categoryChart.chart"
+      [labels]="categoryChart.labels" [title]="categoryChart.title" [legend]="categoryChart.legend"
+      [tooltip]="categoryChart.tooltip"></apx-chart>
   </div>
   <div class="p-col-6">
-    <p-chart *ngIf="doughnutExpenseChart$ | async as doughnutExpenseChart; else loader" type="pie"
-      [data]="doughnutExpenseChart.data" [options]="doughnutExpenseChart.options"></p-chart>
-  </div>
-  <div class="p-col-12">
-    <ng-container *ngIf="records$ | async as records; else loader">
-        <app-table *ngIf="records.length; else emptyTable" [columns]="recordColumns" [value]="records"></app-table>
-    </ng-container>
+    <apx-chart *ngIf="!loading; else loader" [series]="subcategoryChart.series" [chart]="subcategoryChart.chart"
+      [labels]="subcategoryChart.labels" [title]="subcategoryChart.title" [legend]="subcategoryChart.legend"
+      [tooltip]="subcategoryChart.tooltip"></apx-chart>
   </div>
 </div>
 
 <ng-template #loader>
   <app-loader></app-loader>
-</ng-template>
-
-<ng-template #emptyTable>
-  <app-empty-list text="Список записей пуст (выберите элемент на диаграмме)"></app-empty-list>
 </ng-template>

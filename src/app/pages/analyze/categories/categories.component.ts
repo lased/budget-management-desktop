@@ -1,130 +1,88 @@
-import { Component, OnInit } from '@angular/core';
-import { Sequelize, Op } from 'sequelize';
-import * as Chart from 'chart.js';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
-import { Helpers } from 'src/app/core/helpers.class';
-import { RecordType } from 'src/app/core/interfaces';
-import { TableColumn } from 'src/app/shared/components/table/table.interface';
-
-import { Record } from 'src/app/core/models/record';
-import { Category } from 'src/app/core/models/category';
-import { User } from 'src/app/core/models/user';
+import { RecordType, AppChart } from '@core/interfaces';
+import { AnalyzeService, DateFilter } from '@pages/analyze/analyze.service';
+import { switchMap } from 'rxjs/operators';
+import { Helpers } from '@core/helpers.class';
+import { FilterMetadata } from 'primeng/api';
 
 @Component({
   selector: 'app-categories-analyze',
   templateUrl: './categories.component.html'
 })
-export class CategoriesAnalyzeComponent implements OnInit {
-  doughnutIncomeChart$: Promise<any>;
-  doughnutExpenseChart$: Promise<any>;
-  records$: Promise<Record[]>;
+export class CategoriesComponent implements OnInit, OnDestroy {
+  loading = true;
+  helpers = Helpers;
+  type: RecordType;
 
-  recordColumns: TableColumn[];
+  categoryChart: AppChart = {};
+  subcategoryChart: AppChart = {};
 
-  constructor() { }
+  subscription: Subscription;
+
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private analyzeService: AnalyzeService
+  ) { }
 
   ngOnInit() {
-    this.doughnutIncomeChart$ = this.getDoughnutChart(RecordType.income);
-    this.doughnutExpenseChart$ = this.getDoughnutChart();
-    this.recordColumns = [
-      { field: 'user.name', header: 'Пользователь' },
-      { field: 'date', header: 'Дата', format: date => Helpers.formatDate(date) },
-      { field: 'amount', header: 'Сумма', format: amount => Helpers.formatCurrency(amount) },
-      { field: 'note', header: 'Примечание' }
-    ];
-    this.records$ = Promise.resolve([]);
+    this.categoryChart = this.getCategoryChartData();
+    this.subcategoryChart = this.getCategoryChartData(true);
+    this.subscription = this.activatedRoute.params.pipe(
+      switchMap(params => {
+        this.type = params.type;
+        this.analyzeService.setFilters({});
+
+        return this.analyzeService.getPeriod();
+      })
+    ).subscribe(period => {
+      this.loading = true;
+      this.getCharts(period).then(_ => this.loading = false);
+    });
   }
 
-  async getDoughnutChart(type: RecordType = RecordType.expense): Promise<any> {
-    const self = this;
-    const colors = [];
-    const selectCategory = this.selectCategory;
-    const [categories, subcategories] = await Promise.all([
-      this.getSumGroupCategory(type),
-      this.getSumGroupCategory(type, true)
-    ]);
-    const getData = (r: Record) => r.amount;
+  getCategoryChartData(child = false): AppChart {
+    return {
+      chart: { type: 'pie', events: { dataPointSelection: this.dataPointSelection.bind(this, child) } },
+      title: { text: child ? 'Подкатегории' : 'Категории', align: 'center' },
+      legend: { position: 'right' },
+      tooltip: { y: { formatter: val => this.helpers.formatCurrency(val) } }
+    };
+  }
 
-    for (let index = 0; index < categories.length + subcategories.length; index++) {
-      colors.push(Helpers.getRandomColor());
+  dataPointSelection(child, _, __, config) {
+    const arrIndexes: number[] = config.selectedDataPoints[0];
+    const key = child ? 'subcategory.name' : 'category.name';
+    const filters: { [s: string]: FilterMetadata } = {
+      [key]: { value: null }
+    };
+
+    if (arrIndexes.length) {
+      filters[key] = {
+        value: config.w.config.labels[arrIndexes[0]]
+      };
     }
 
-    return {
-      data: {
-        labels: [
-          ...categories.map(r => r.category.name),
-          ...subcategories.map(r => r.subcategory.name)
-        ],
-        datasets: [
-          {
-            data: [...categories.map(getData), ...new Array(subcategories.length).fill(0)],
-            backgroundColor: colors
-          },
-          {
-            data: [...new Array(categories.length).fill(0), ...subcategories.map(getData)],
-            backgroundColor: colors
-          }
-        ]
-      },
-      options: {
-        circumference: Math.PI,
-        rotation: -Math.PI,
-        legend: {
-          position: 'left'
-        },
-        tooltips: {
-          callbacks: {
-            label: (tooltipItem, data) => {
-              const value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-              const label = data.labels[tooltipItem.index];
-
-              return `${label}: ${Helpers.formatCurrency(+value)}`;
-            }
-          }
-        },
-        onClick(e, activeElement) {
-          const chart: Chart = this;
-
-          if (activeElement.length) {
-            const element: any = activeElement[0];
-            const label = chart.data.labels[element._index] as string;
-
-            self.records$ = selectCategory(type, label);
-          }
-        }
-      }
-    } as Chart;
+    this.analyzeService.setFilters(filters);
   }
 
-  async selectCategory(type: RecordType, label: string): Promise<Record[]> {
-    const category: Category = await Category.findOne({ where: { name: label } });
-    const records: Record[] = await Record.findAll({
-      where: {
-        type,
-        ...(category.parentId ? { subcategoryId: category.id } : { categoryId: category.id })
-      },
-      include: [
-        { model: User, as: 'user' }
-      ],
-    });
+  async getCharts(period: DateFilter) {
+    const [recCategories, recSubcategories] = await Promise.all([
+      this.analyzeService.getSumGroupCategory(this.type, period, false),
+      this.analyzeService.getSumGroupCategory(this.type, period, false, true),
+    ]);
 
-    return records;
+    this.categoryChart.labels = recCategories.map(r => r.category.name);
+    this.categoryChart.series = recCategories.map(r => r.amount);
+    this.subcategoryChart.labels = recSubcategories.map(r => r.subcategory.name);
+    this.subcategoryChart.series = recSubcategories.map(r => r.amount);
+
   }
 
-  getSumGroupCategory(type: RecordType, subcategory: boolean = false): Promise<Record[]> {
-    return Record.findAll({
-      attributes: [
-        [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
-      ],
-      where: {
-        type,
-        ...(subcategory ? { subcategoryId: { [Op.not]: null } } : {})
-      },
-      include: [
-        { model: Category, as: subcategory ? 'subcategory' : 'category' }
-      ],
-      group: [subcategory ? 'subcategoryId' : 'categoryId'],
-    });
+  ngOnDestroy() {
+    this.analyzeService.setFilters({});
+    this.subscription.unsubscribe();
   }
-
 }

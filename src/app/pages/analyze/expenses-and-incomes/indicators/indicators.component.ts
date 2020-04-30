@@ -1,16 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FilterMetadata } from 'primeng/api';
 import { Op } from 'sequelize';
+import { Subscription } from 'rxjs';
 
 import { Record } from '@core/models/record';
 import { RecordType, AppChart } from '@core/interfaces';
 import { Helpers } from '@core/helpers.class';
 import { DateFilter, AnalyzeService } from '@pages/analyze/analyze.service';
-import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-indicators',
-  templateUrl: './indicators.component.html',
-  styleUrls: ['./indicators.component.scss']
+  selector: 'app-indicators-analyze',
+  templateUrl: './indicators.component.html'
 })
 export class IndicatorsComponent implements OnInit, OnDestroy {
   loading = true;
@@ -45,9 +45,17 @@ export class IndicatorsComponent implements OnInit, OnDestroy {
     };
   }
 
-  dataPointSelection(event, chartContext, config) {
-    console.log(config);
+  dataPointSelection(_, __, config) {
+    const arrIndexes: number[] = config.selectedDataPoints[0];
+    const filters: { [s: string]: FilterMetadata } = { type: { value: null } };
 
+    if (arrIndexes.length) {
+      filters.type = {
+        value: arrIndexes[0] === 0 ? RecordType.expense : RecordType.income
+      };
+    }
+
+    this.analyzeService.setFilters(filters);
   }
 
   async getPieChart(period: DateFilter) {

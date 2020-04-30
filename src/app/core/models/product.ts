@@ -7,7 +7,7 @@ export class Product extends Model {
     public recordId!: number | Record;
     public name!: string;
     public price!: number;
-    public quantity: number;
+    public quantity!: number;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;

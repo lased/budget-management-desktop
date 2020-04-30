@@ -36,7 +36,8 @@ declare const Apex: any;
 
 Apex.chart = {
   locales: [ruChart],
-  defaultLocale: 'ru'
+  defaultLocale: 'ru',
+  height: 350
 };
 
 const Common = [
