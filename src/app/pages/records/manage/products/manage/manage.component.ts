@@ -43,7 +43,7 @@ export class ProductManageComponent implements OnInit {
       this.form.patchValue({
         name: this.product.name,
         quantity: this.product.quantity,
-        price: this.product.price / 100
+        price: this.product.price
       });
       this.form.enable();
     }
@@ -53,7 +53,7 @@ export class ProductManageComponent implements OnInit {
     const f = Object.assign({}, form);
 
     f.quantity = +(Number(this.helpers.getNumber(f.quantity)).toFixed(3));
-    f.price = Math.round(this.helpers.getNumber(f.price) * 100);
+    f.price = Math.round(this.helpers.getNumber(f.price));
 
     return f;
   }

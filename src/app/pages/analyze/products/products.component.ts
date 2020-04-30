@@ -20,8 +20,8 @@ export class ProductsAnalyzeComponent implements OnInit {
     this.productColumns = [
       { field: 'name', header: 'Наименование' },
       { field: 'quantity', header: 'Количество', format: val => Helpers.formatNumber(val) },
-      { field: 'price', header: 'Цена', format: val => Helpers.formatCurrency(val / 100) },
-      { field: 'dataValues.amount', header: 'Сумма', format: val => Helpers.formatCurrency(val / 100) }
+      { field: 'price', header: 'Цена', format: val => Helpers.formatCurrency(val) },
+      { field: 'dataValues.amount', header: 'Сумма', format: val => Helpers.formatCurrency(val) }
 
     ];
     this.products$ = this.getTopProducts();

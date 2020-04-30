@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { Record } from '@core/models/record';
 import { RecordType, AppChart } from '@core/interfaces';
 import { Helpers } from '@core/helpers.class';
-import { DateFilter, AnalyzeService } from '@pages/analyze/analyze.service';
+import { DateFilter, AnalyzeService } from '@core/services/analyze.service';
 
 @Component({
   selector: 'app-indicators-analyze',

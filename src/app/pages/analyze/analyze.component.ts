@@ -5,7 +5,7 @@ import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
-import { AnalyzeService } from './analyze.service';
+import { AnalyzeService } from '../../core/services/analyze.service';
 
 @Component({
   selector: 'app-analyze',

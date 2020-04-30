@@ -1,16 +1,12 @@
 <div class="p-grid p-justify-center">
-  <div class="charts-list">
+  <div class="app-analyze__chart-menu">
     <p-tabMenu [model]="charts"></p-tabMenu>
   </div>
   <div class="p-col-12">
     <router-outlet></router-outlet>
   </div>
-  <div class="p-col-12 table">
+  <div class="p-col-12 app-analyze__table">
     <app-table [lazy]="true" [actionsSpan]=".7" [loading]="loading" [columns]="recordColumns" [value]="records"
       [actionsCallback]="actionsCallback" [totalRecords]="totalRecords" (lazyLoad)="onLazyLoad($event)"></app-table>
   </div>
 </div>
-
-<ng-template #loader>
-  <app-loader></app-loader>
-</ng-template>

@@ -34,8 +34,8 @@ export class ProductsComponent implements OnInit {
     this.listColumns = [
       { field: 'name', header: 'Наименование' },
       { field: 'quantity', header: 'Количество', format: quantity => this.helpers.formatNumber(quantity) },
-      { field: 'price', header: 'Цена', format: price => this.helpers.formatCurrency(price / 100) },
-      { field: 'price', header: 'Сумма', format: (price, _, row) => this.helpers.formatCurrency((price * row.quantity) / 100) }
+      { field: 'price', header: 'Цена', format: price => this.helpers.formatCurrency(price) },
+      { field: 'price', header: 'Сумма', format: (price, _, row) => this.helpers.formatCurrency(price * row.quantity) }
     ];
   }
 

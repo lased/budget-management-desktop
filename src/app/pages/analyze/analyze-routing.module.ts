@@ -7,6 +7,7 @@ import { AnalyzeComponent } from './analyze.component';
 import { ProductsAnalyzeComponent } from './products/products.component';
 import { IndicatorsComponent } from './expenses-and-incomes/indicators/indicators.component';
 import { CategoriesComponent } from './categories/categories.component';
+import { RecordType } from '@core/interfaces';
 
 const routes: Routes = [
     {
@@ -20,8 +21,15 @@ const routes: Routes = [
                     { path: '**', redirectTo: 'indicators', pathMatch: 'full' }
                 ]
             },
+            {
+                path: 'products',
+                component: ProductsAnalyzeComponent,
+                children: [
+                    { path: 'categories/:type', component: CategoriesComponent, data: { products: true } },
+                    { path: '**', redirectTo: `categories/${RecordType.expense}`, pathMatch: 'full' }
+                ]
+            },
             { path: 'forecast', component: ForecastAnalyzeComponent },
-            { path: 'products', component: ProductsAnalyzeComponent },
             { path: '**', redirectTo: 'expenses-and-incomes', pathMatch: 'full' }
         ]
     },

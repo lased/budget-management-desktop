@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { RecordType, AppChart } from '@core/interfaces';
-import { AnalyzeService, DateFilter } from '@pages/analyze/analyze.service';
+import { AnalyzeService, DateFilter } from '@core/services/analyze.service';
 import { switchMap } from 'rxjs/operators';
 import { Helpers } from '@core/helpers.class';
 import { FilterMetadata } from 'primeng/api';
@@ -16,6 +16,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   loading = true;
   helpers = Helpers;
   type: RecordType;
+  products: boolean;
 
   categoryChart: AppChart = {};
   subcategoryChart: AppChart = {};
@@ -28,6 +29,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.products = this.activatedRoute.snapshot.data.products || false;
     this.categoryChart = this.getCategoryChartData();
     this.subcategoryChart = this.getCategoryChartData(true);
     this.subscription = this.activatedRoute.params.pipe(
@@ -70,8 +72,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
   async getCharts(period: DateFilter) {
     const [recCategories, recSubcategories] = await Promise.all([
-      this.analyzeService.getSumGroupCategory(this.type, period, false),
-      this.analyzeService.getSumGroupCategory(this.type, period, false, true),
+      this.analyzeService.getSumGroupCategory(this.type, period, this.products),
+      this.analyzeService.getSumGroupCategory(this.type, period, this.products, true),
     ]);
 
     this.categoryChart.labels = recCategories.map(r => r.category.name);

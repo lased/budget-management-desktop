@@ -11,15 +11,13 @@ import { TableColumn, TableActions } from '@shared/components/table/table.interf
 import { Record } from '@core/models/record';
 import { Category } from '@core/models/category';
 import { User } from '@core/models/user';
-import { AnalyzeService, DateFilter } from '../analyze.service';
+import { AnalyzeService, DateFilter } from '../../../core/services/analyze.service';
 
 @Component({
   selector: 'app-expenses-and-incomes-analyze',
-  templateUrl: './expenses-and-incomes.component.html',
-  styleUrls: ['./expenses-and-incomes.component.scss']
+  templateUrl: './expenses-and-incomes.component.html'
 })
 export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
-  helpers = Helpers;
   filters: { [s: string]: FilterMetadata } = {};
   period: DateFilter;
   charts: MenuItem[];

@@ -127,7 +127,7 @@ export class RecordManageComponent implements OnInit {
   }
 
   sumProducts(products: Product[]) {
-    return Math.floor(products.reduce((acc, curr) => acc + curr.price * curr.quantity, 0) / 100);
+    return Math.floor(products.reduce((acc, curr) => acc + curr.price * curr.quantity, 0));
   }
 
   isExpense() {
@@ -260,7 +260,7 @@ export class RecordManageComponent implements OnInit {
       const product = new Product({
         name: item.name.replace(/^[0-9*?]+[\s\.]+/, ''),
         quantity: +(Number(item.quantity).toFixed(2)),
-        price: item.price
+        price: +(Number(item.price / 100)).toFixed(2)
       });
       const existsProduct = this.record.products.find(p => p.name === product.name && p.price === product.price);
 
