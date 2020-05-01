@@ -1,8 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { LazyLoadEvent, MenuItem, FilterMetadata } from 'primeng/api';
-import { Order, Op } from 'sequelize';
-import { Subscription } from 'rxjs';
+import { MenuItem } from 'primeng/api';
 
 import { Helpers } from '@core/helpers.class';
 import { RecordType } from '@core/interfaces';
@@ -11,38 +9,32 @@ import { TableColumn, TableActions } from '@shared/components/table/table.interf
 import { Record } from '@core/models/record';
 import { Category } from '@core/models/category';
 import { User } from '@core/models/user';
-import { AnalyzeService, DateFilter } from '../../../core/services/analyze.service';
+import { AppIncludeModel } from '../table/table.component';
 
 @Component({
   selector: 'app-expenses-and-incomes-analyze',
   templateUrl: './expenses-and-incomes.component.html'
 })
-export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
-  filters: { [s: string]: FilterMetadata } = {};
-  period: DateFilter;
+export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
   charts: MenuItem[];
-
-  records: Record[];
   recordColumns: TableColumn[];
-  totalRecords: number;
   actionsCallback: TableActions;
-  event: LazyLoadEvent;
-  loading: boolean;
-
-  periodSubscription: Subscription;
-  filtersSubscription: Subscription;
+  include: AppIncludeModel[];
 
   constructor(
-    private router: Router,
-    private analyzeService: AnalyzeService
+    private router: Router
   ) { }
 
   ngOnInit() {
-    this.loading = true;
     this.charts = [
       { label: 'Индикаторы', icon: '', routerLink: ['indicators'] },
       { label: 'Категории доходов', icon: '', routerLink: ['categories', RecordType.income] },
       { label: 'Категории расходов', icon: '', routerLink: ['categories', RecordType.expense] }
+    ];
+    this.include = [
+      { model: Category, as: 'category' },
+      { model: Category, as: 'subcategory' },
+      { model: User, as: 'user' },
     ];
     this.actionsCallback = {
       onCreate: () => this.create(),
@@ -58,76 +50,6 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
       { field: 'amount', header: 'Сумма', format: amount => Helpers.formatCurrency(amount) },
       { field: 'note', header: 'Примечание', sortable: false }
     ];
-    this.periodSubscription = this.analyzeService.getPeriod().subscribe(period => {
-      this.period = period;
-
-      if (this.event) {
-        this.getRecords(this.event);
-      }
-    });
-    this.filtersSubscription = this.analyzeService.getFilters().subscribe(filters => {
-      if (!Object.keys(filters).length) {
-        this.filters = {};
-
-        return;
-      }
-
-      this.filters = { ...this.filters, ...filters };
-      this.getRecords(this.event);
-    });
-  }
-
-  onLazyLoad(event: LazyLoadEvent) {
-    this.event = event;
-    this.getRecords(event);
-  }
-
-  getRecords(event: LazyLoadEvent = {}) {
-    const include = [
-      { model: Category, as: 'category' },
-      { model: Category, as: 'subcategory' },
-      { model: User, as: 'user' }
-    ];
-    const date = {
-      [Op.gte]: this.period.min,
-      [Op.lte]: this.period.max
-    };
-    const filters = {};
-    let order: Order = [['date', 'DESC']];
-
-    if (event.sortField) {
-      const field = event.sortField.split('.');
-      const sortOrder = event.sortOrder === 1 ? 'ASC' : 'DESC';
-
-      order = field.length > 1
-        ? [[include.find(i => i.as === field[0]), field[1], sortOrder]]
-        : [[field[0], sortOrder]];
-    }
-
-    if (Object.keys(this.filters).length) {
-      Object.keys(this.filters).forEach(k => {
-        const key = k.split('.').length > 1 ? `$${k}$` : k;
-
-        if (this.filters[k].value === null) {
-          delete filters[key];
-        } else {
-          filters[key] = { [Op.eq]: this.filters[k].value };
-        }
-      });
-    }
-
-    this.loading = true;
-    Record.findAndCountAll({
-      include,
-      order,
-      limit: event.rows,
-      offset: event.first,
-      where: { date, ...filters }
-    }).then(({ rows, count }) => {
-      this.totalRecords = count;
-      this.records = rows;
-      this.loading = false;
-    });
   }
 
   create() {
@@ -138,15 +60,7 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit, OnDestroy {
     this.router.navigate(['/pages/records/update', id]);
   }
 
-  delete(id: number) {
-    Record.destroy({ where: { id } }).then(_ => {
-      this.getRecords(this.event);
-      this.analyzeService.setPeriod([this.period.min, this.period.max]);
-    });
-  }
-
-  ngOnDestroy() {
-    this.periodSubscription.unsubscribe();
-    this.filtersSubscription.unsubscribe();
+  async delete(id: number) {
+    await Record.destroy({ where: { id } });
   }
 }

@@ -53,21 +53,27 @@ export class ProductManageComponent implements OnInit {
     const f = Object.assign({}, form);
 
     f.quantity = +(Number(this.helpers.getNumber(f.quantity)).toFixed(3));
-    f.price = Math.round(this.helpers.getNumber(f.price));
+    f.price = +(Number(this.helpers.getNumber(f.price)).toFixed(2));
+    f.amount = +(Number(this.helpers.getNumber(f.price * f.quantity)).toFixed(2));
 
     return f;
   }
 
   create() {
     const form = this.fixNumber(this.form.value);
-    const product = new Product({ ...form });
+    const product = new Product(form);
 
     this.close(product);
   }
 
   save() {
     const form = this.fixNumber(this.form.value);
-    const product = new Product({ ...this.product, ...form });
+    const product = this.product ? this.product : new Product();
+
+    product.name = form.name;
+    product.quantity = form.quantity;
+    product.price = form.price;
+    product.amount = form.amount;
 
     this.close(product);
   }

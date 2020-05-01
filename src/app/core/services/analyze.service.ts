@@ -7,7 +7,6 @@ import { RecordType } from '@core/interfaces';
 import { Record } from '@core/models/record';
 import { Category } from '@core/models/category';
 import { Product } from '@core/models/product';
-import { Literal } from 'sequelize/types/lib/utils';
 
 export interface DateFilter {
     min?: Date;

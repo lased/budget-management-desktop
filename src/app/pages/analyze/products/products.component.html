@@ -1,15 +1,11 @@
 <div class="p-grid p-justify-center">
-  <div class="p-col-11">
-    <ng-container *ngIf="products$ | async as products; else loader">
-      <app-table *ngIf="products.length; else emptyTable" [columns]="productColumns" [value]="products"></app-table>
-    </ng-container>
+  <div class="app-analyze__chart-menu">
+    <p-tabMenu [model]="charts"></p-tabMenu>
+  </div>
+  <div class="p-col-12">
+    <router-outlet></router-outlet>
+  </div>
+  <div class="p-col-12 app-analyze__table">
+    <app-analyze-table [columns]="productColumns" [include]="include" [formatedOutput]="formatedOutput"></app-analyze-table>
   </div>
 </div>
-
-<ng-template #loader>
-  <app-loader></app-loader>
-</ng-template>
-
-<ng-template #emptyTable>
-  <app-empty-list></app-empty-list>
-</ng-template>

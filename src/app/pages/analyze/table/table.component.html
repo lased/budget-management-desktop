@@ -1,0 +1,3 @@
+<app-table [lazy]="true" [actions]="isActions()" [actionsCallback]="actionsCallback" [actionsSpan]=".7"
+  [loading]="loading" [columns]="columns" [value]="records" [totalRecords]="totalRecords"
+  (lazyLoad)="onLazyLoad($event)"></app-table>

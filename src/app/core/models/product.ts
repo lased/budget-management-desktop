@@ -8,6 +8,7 @@ export class Product extends Model {
     public name!: string;
     public price!: number;
     public quantity!: number;
+    public amount!: number;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -29,6 +30,10 @@ export function init(sequelize: Sequelize) {
             allowNull: false
         },
         quantity: {
+            type: DataTypes.DOUBLE,
+            allowNull: false
+        },
+        amount: {
             type: DataTypes.DOUBLE,
             allowNull: false
         },

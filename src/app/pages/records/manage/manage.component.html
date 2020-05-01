@@ -22,8 +22,8 @@
     </div>
     <div *ngIf="isExpense()" class="p-col-12">
       <p-accordion>
-        <p-accordionTab header="Товары и услуги ({{ record.products.length }})">
-          <app-products [list]="record.products" (createEvent)="createProduct($event)"
+        <p-accordionTab header="Товары и услуги ({{ record.products?.length || 0}})">
+          <app-products [list]="record.products || []" (createEvent)="createProduct($event)"
             (updateEvent)="updateProduct($event)" (deleteEvent)="deleteProduct($event)"></app-products>
         </p-accordionTab>
       </p-accordion>

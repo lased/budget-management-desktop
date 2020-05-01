@@ -35,7 +35,7 @@ export class ProductsComponent implements OnInit {
       { field: 'name', header: 'Наименование' },
       { field: 'quantity', header: 'Количество', format: quantity => this.helpers.formatNumber(quantity) },
       { field: 'price', header: 'Цена', format: price => this.helpers.formatCurrency(price) },
-      { field: 'price', header: 'Сумма', format: (price, _, row) => this.helpers.formatCurrency(price * row.quantity) }
+      { field: 'amount', header: 'Сумма', format: amount => this.helpers.formatCurrency(amount) }
     ];
   }
 

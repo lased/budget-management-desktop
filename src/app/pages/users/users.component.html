@@ -1,5 +1,5 @@
 <div class="p-grid p-justify-center">
-  <div class="p-col-4">
+  <div class="p-md-6 p-xl-4">
     <app-table [lazy]="true" [loading]="loading" [columns]="userColumns" [value]="users" [actionsSpan]=".5"
       [totalRecords]="totalUsers" [actionsCallback]="actionsCallback" (lazyLoad)="onLazyLoad($event)"></app-table>
   </div>

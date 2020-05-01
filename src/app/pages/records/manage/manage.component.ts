@@ -29,6 +29,7 @@ import { QrDialogComponent } from '../qr-dialog/qr-dialog.component';
   providers: [RecordService]
 })
 export class RecordManageComponent implements OnInit {
+  prevSumProducts = 0;
   record: Record;
   form: FormGroup;
   qrData: QRData;
@@ -118,16 +119,18 @@ export class RecordManageComponent implements OnInit {
 
   setAmountValidators() {
     const sum = this.sumProducts(this.record.products);
+    const amount = (this.form.controls.amount.value - this.prevSumProducts) + sum;
 
-    this.form.controls.amount.setValue(sum);
+    this.prevSumProducts = sum;
     this.form.controls.amount.setValidators([
       Validators.required,
-      Validators.min(this.sumProducts(this.record.products))
+      Validators.min(sum)
     ]);
+    this.form.controls.amount.setValue(amount);
   }
 
   sumProducts(products: Product[]) {
-    return Math.floor(products.reduce((acc, curr) => acc + curr.price * curr.quantity, 0));
+    return Math.floor(products.reduce((acc, curr) => acc + curr.amount, 0));
   }
 
   isExpense() {
@@ -259,20 +262,12 @@ export class RecordManageComponent implements OnInit {
     items.forEach(item => {
       const product = new Product({
         name: item.name.replace(/^[0-9*?]+[\s\.]+/, ''),
-        quantity: +(Number(item.quantity).toFixed(2)),
-        price: +(Number(item.price / 100)).toFixed(2)
+        quantity: +(Number(item.quantity).toFixed(3)),
+        price: +(Number(item.price / 100)).toFixed(2),
+        amount: +(Number(item.sum / 100)).toFixed(2),
       });
-      const existsProduct = this.record.products.find(p => p.name === product.name && p.price === product.price);
 
-      if (existsProduct) {
-        product.quantity += existsProduct.quantity;
-        this.recordService.updateProduct({
-          old: existsProduct,
-          new: product
-        });
-      } else {
-        this.recordService.createProduct(product);
-      }
+      this.recordService.createProduct(product);
       this.setAmountValidators();
     });
   }

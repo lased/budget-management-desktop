@@ -1,44 +1,61 @@
 import { Component, OnInit } from '@angular/core';
-import { Sequelize } from 'sequelize';
+import { MenuItem } from 'primeng/api';
 
-import { Helpers } from 'src/app/core/helpers.class';
-import { TableColumn } from 'src/app/shared/components/table/table.interface';
+import { Helpers } from '@core/helpers.class';
+import { TableColumn } from '@shared/components/table/table.interface';
 
-import { Product } from 'src/app/core/models/product';
+import { Product } from '@core/models/product';
+import { User } from '@core/models/user';
+import { Category } from '@core/models/category';
+import { Record } from '@core/models/record';
+import { RecordType } from '@core/interfaces';
+
+import { AppIncludeModel } from '../table/table.component';
 
 @Component({
   selector: 'app-products-analyze',
   templateUrl: './products.component.html'
 })
 export class ProductsAnalyzeComponent implements OnInit {
-  products$: Promise<Product[]>;
   productColumns: TableColumn[];
+  include: AppIncludeModel[];
+  charts: MenuItem[];
 
   constructor() { }
 
   ngOnInit() {
-    this.productColumns = [
-      { field: 'name', header: 'Наименование' },
-      { field: 'quantity', header: 'Количество', format: val => Helpers.formatNumber(val) },
-      { field: 'price', header: 'Цена', format: val => Helpers.formatCurrency(val) },
-      { field: 'dataValues.amount', header: 'Сумма', format: val => Helpers.formatCurrency(val) }
-
+    this.charts = [
+      { label: 'Категории расходов', icon: '', routerLink: ['categories', RecordType.expense] }
     ];
-    this.products$ = this.getTopProducts();
+    this.include = [
+      { model: Category, as: 'category' },
+      { model: Category, as: 'subcategory' },
+      { model: User, as: 'user' },
+      { model: Product, as: 'products' }
+    ];
+    this.productColumns = [
+      { field: 'products.name', header: 'Наименование' },
+      { field: 'category.name', header: 'Категория' },
+      { field: 'subcategory.name', header: 'Подкатегория' },
+      { field: 'user.name', header: 'Пользователь' },
+      { field: 'products.quantity', header: 'Количество', format: val => Helpers.formatNumber(val) },
+      { field: 'products.price', header: 'Цена', format: val => Helpers.formatCurrency(val) },
+      { field: 'products.amount', header: 'Сумма', format: val => Helpers.formatCurrency(val) }
+    ];
   }
 
-  getTopProducts(limit: number = 10) {
-    const sumQuantity = Sequelize.fn('SUM', Sequelize.col('quantity'));
+  formatedOutput({ count, rows: records }) {
+    const products = [];
 
-    return Product.findAll({
-      attributes: [
-        'name',
-        'price',
-        [sumQuantity, 'quantity'],
-        [Sequelize.literal('quantity * price'), 'amount']
-      ],
-      group: ['name'],
-      order: [Sequelize.literal('quantity * price DESC')]
+    records.forEach((r: Record) => {
+      products.push(...r.products.map(p => ({
+        products: p,
+        category: r.category,
+        subcategory: r.subcategory,
+        user: r.user,
+      })));
     });
+
+    return { count, rows: products };
   }
 }
