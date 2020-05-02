@@ -9,7 +9,7 @@ import { TableColumn, TableActions } from '@shared/components/table/table.interf
 import { Record } from '@core/models/record';
 import { Category } from '@core/models/category';
 import { User } from '@core/models/user';
-import { AppIncludeModel } from '../table/table.component';
+import { AppIncludeModel } from '../shared/charts/table/table.component';
 
 @Component({
   selector: 'app-expenses-and-incomes-analyze',
@@ -29,7 +29,8 @@ export class ExpensesAndIncomesAnalyzeComponent implements OnInit {
     this.charts = [
       { label: 'Индикаторы', icon: '', routerLink: ['indicators'] },
       { label: 'Категории доходов', icon: '', routerLink: ['categories', RecordType.income] },
-      { label: 'Категории расходов', icon: '', routerLink: ['categories', RecordType.expense] }
+      { label: 'Категории расходов', icon: '', routerLink: ['categories', RecordType.expense] },
+      { label: 'Пользователи', icon: '', routerLink: ['users'] }
     ];
     this.include = [
       { model: Category, as: 'category' },

@@ -6,8 +6,9 @@ import { ForecastAnalyzeComponent } from './forecast/forecast.component';
 import { AnalyzeComponent } from './analyze.component';
 import { ProductsAnalyzeComponent } from './products/products.component';
 import { IndicatorsComponent } from './expenses-and-incomes/indicators/indicators.component';
-import { CategoriesComponent } from './categories/categories.component';
+import { CategoriesComponent } from './shared/charts/categories/categories.component';
 import { RecordType } from '@core/interfaces';
+import { UsersComponent } from './shared/charts/users/users.component';
 
 const routes: Routes = [
     {
@@ -18,6 +19,7 @@ const routes: Routes = [
                 children: [
                     { path: 'indicators', component: IndicatorsComponent },
                     { path: 'categories/:type', component: CategoriesComponent },
+                    { path: 'users', component: UsersComponent },
                     { path: '**', redirectTo: 'indicators', pathMatch: 'full' }
                 ]
             },
@@ -26,6 +28,7 @@ const routes: Routes = [
                 component: ProductsAnalyzeComponent,
                 children: [
                     { path: 'categories/:type', component: CategoriesComponent, data: { products: true } },
+                    { path: 'users', component: UsersComponent, data: { products: true } },
                     { path: '**', redirectTo: `categories/${RecordType.expense}`, pathMatch: 'full' }
                 ]
             },

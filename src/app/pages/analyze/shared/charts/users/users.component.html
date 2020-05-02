@@ -1,0 +1,11 @@
+<div class="p-grid p-justify-center">
+  <div class="p-col-6">
+    <apx-chart *ngIf="!loading; else loader" [series]="userChart.series" [chart]="userChart.chart"
+      [labels]="userChart.labels" [title]="userChart.title" [legend]="userChart.legend" [tooltip]="userChart.tooltip">
+    </apx-chart>
+  </div>
+</div>
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>

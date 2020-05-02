@@ -8,8 +8,10 @@ import { ExpensesAndIncomesAnalyzeComponent } from './expenses-and-incomes/expen
 import { ForecastAnalyzeComponent } from './forecast/forecast.component';
 import { ProductsAnalyzeComponent } from './products/products.component';
 import { IndicatorsComponent } from './expenses-and-incomes/indicators/indicators.component';
-import { CategoriesComponent } from './categories/categories.component';
-import { AnalyzeTableComponent } from './table/table.component';
+
+import { CategoriesComponent } from './shared/charts/categories/categories.component';
+import { AnalyzeTableComponent } from './shared/charts/table/table.component';
+import { UsersComponent } from './shared/charts/users/users.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,8 @@ import { AnalyzeTableComponent } from './table/table.component';
     ProductsAnalyzeComponent,
     IndicatorsComponent,
     CategoriesComponent,
-    AnalyzeTableComponent
+    AnalyzeTableComponent,
+    UsersComponent
   ],
   imports: [
     SharedModule,

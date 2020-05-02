@@ -10,7 +10,7 @@ import { Category } from '@core/models/category';
 import { Record } from '@core/models/record';
 import { RecordType } from '@core/interfaces';
 
-import { AppIncludeModel } from '../table/table.component';
+import { AppIncludeModel } from '../shared/charts/table/table.component';
 
 @Component({
   selector: 'app-products-analyze',
@@ -25,7 +25,8 @@ export class ProductsAnalyzeComponent implements OnInit {
 
   ngOnInit() {
     this.charts = [
-      { label: 'Категории расходов', icon: '', routerLink: ['categories', RecordType.expense] }
+      { label: 'Категории расходов', icon: '', routerLink: ['categories', RecordType.expense] },
+      { label: 'Пользователи', icon: '', routerLink: ['users'] }
     ];
     this.include = [
       { model: Category, as: 'category' },
