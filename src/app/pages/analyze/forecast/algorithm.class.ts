@@ -52,7 +52,7 @@ export class NeuralModel {
         return modelData;
     }
 
-    forecast(period: number) {
+    forecast(period: number): number[] {
         if (this.data.length > 3) {
             const trainData = [];
             const forecastData = [];

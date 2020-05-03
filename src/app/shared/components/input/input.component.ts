@@ -10,6 +10,8 @@ import { SelectItem } from 'primeng/api';
 })
 export class InputComponent implements OnInit {
   @Input() label = '';
+  @Input() name = '';
+  @Input() value = '';
   @Input() placeholder: string;
   @Input() mask: string;
   @Input() optionLabel: string;
@@ -21,9 +23,9 @@ export class InputComponent implements OnInit {
   }
   set type(value: InputType) {
     if (value && (
-      value === 'text' || value === 'select' ||
-      value === 'datetime' || value === 'number' ||
-      value === 'textarea' || value === 'password' || 'daterange'
+      value === 'text' || value === 'select' || value === 'checkbox' ||
+      value === 'datetime' || value === 'number' || 'daterange' ||
+      value === 'textarea' || value === 'password'
     )) {
       this._type = value;
     } else {

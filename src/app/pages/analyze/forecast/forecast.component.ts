@@ -1,201 +1,139 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { Sequelize } from 'sequelize';
-import * as Chart from 'chart.js';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { ApexAxisChartSeries } from 'ng-apexcharts';
 
-import { Helpers } from 'src/app/core/helpers.class';
+import { AppChart } from '@core/interfaces';
+import { Helpers } from '@core/helpers.class';
+import { Record } from '@core/models/record';
+import { AnalyzeService } from '@core/services/analyze.service';
 import { MovingAverage, NeuralModel } from './algorithm.class';
 
-import { RecordType } from 'src/app/core/interfaces';
-
-import { Record } from 'src/app/core/models/record';
-
-interface Period {
-  name: string;
-  value: number;
+interface ForecastPeriod {
+    name: string;
+    value: number;
 }
 
+type ForecastMethods = 'movingAverage' | 'neuralModel';
+
 @Component({
-  selector: 'app-forecast-analyze',
-  templateUrl: './forecast.component.html'
+    selector: 'app-forecast-analyze',
+    templateUrl: './forecast.component.html'
 })
 export class ForecastAnalyzeComponent implements OnInit {
-  lineChart$: Promise<Chart>;
-  incomes: Record[];
-  expenses: Record[];
+    loading = true;
+    forecastChart: AppChart = {};
 
-  periodControl: FormControl;
-  selectedPeriod: Period;
-  periods: Period[];
+    form: FormGroup;
+    expenses: Record[];
+    periods: ForecastPeriod[];
+    lastPeriod: ForecastPeriod;
 
-  constructor() { }
+    constructor(
+        private fb: FormBuilder,
+        private analyzeService: AnalyzeService
+    ) { }
 
-  ngOnInit() {
-    this.periodControl = new FormControl();
-    this.periodControl.disable();
-    this.periods = [
-      { name: '1 месяц', value: 1 },
-      { name: '3 месяца', value: 3 },
-      { name: 'Пол года', value: 6 }
-    ];
-    this.lineChart$ = this.getLineChart().then(chart => {
-      const datasets = chart.data.datasets;
-      const expenses = datasets[0].data;
+    ngOnInit() {
+        this.form = this.fb.group({
+            period: [''],
+            methods: [['movingAverage'] as ForecastMethods[]]
+        });
+        this.form.disable();
+        this.forecastChart = this.getForecastChart();
+        this.periods = [
+            { name: '1 месяц', value: 1 },
+            { name: '3 месяца', value: 3 },
+            { name: 'Пол года', value: 6 }
+        ];
+        this.analyzeService.getMonthlyExpenses().then(recs => {
+            this.forecastChart.labels = recs.map(r => r.date.toISOString());
+            this.forecastChart.series[0] = {
+                name: 'Расход',
+                data: recs.map(r => r.amount)
+            };
+            this.loading = false;
 
-      if (expenses.length >= 4) {
-        this.periodControl.enable();
-      } else {
-        this.periodControl.disable();
-      }
-
-      return chart;
-    });
-  }
-
-  selectPeriod(chart: Chart) {
-    const period = this.periodControl.value;
-    const datasets = chart.data.datasets;
-
-    if (this.selectedPeriod) {
-      this.clearLineChart(chart, this.selectedPeriod);
+            if (recs.length > 3) {
+                this.form.enable();
+            }
+        });
     }
 
-    const expenses = { data: datasets[0].data, forecast: { average: [], model: [] } };
-
-    this.selectedPeriod = period;
-    expenses.forecast = this.forecastDataset(expenses.data as number[], period.value);
-    chart.data.labels = this.extendLabels(chart.data.labels as string[], period.value);
-    this.pushDataset(chart, {
-      type: 'line',
-      label: 'Прогноз (скользящая средняя)',
-      data: expenses.forecast.average,
-      borderColor: 'yellow',
-      backgroundColor: 'transparent'
-    });
-    this.pushDataset(chart, {
-      type: 'line',
-      label: 'Прогноз (нейронная сеть)',
-      data: expenses.forecast.model,
-      borderColor: 'blue',
-      backgroundColor: 'transparent'
-    });
-    chart.data = { ...chart.data };
-  }
-
-  pushDataset(chart: Chart, dataset: Chart.ChartDataSets) {
-    if (dataset.data.length) {
-      chart.data.datasets.unshift(dataset);
-    }
-  }
-
-  forecastDataset(dataset: number[], period: number) {
-    const MA = new MovingAverage(dataset);
-    const MAValues = MA.forecast(period);
-    const averages = MA.averageArray();
-
-    const net = new NeuralModel(dataset);
-    const netValues = net.forecast(period);
-
-    return { average: [...averages, ...MAValues], model: [...net.getModelData(), ...netValues] };
-  }
-
-  clearLineChart(chart: Chart, period: Period) {
-    const labels = chart.data.labels;
-    const datasets = chart.data.datasets;
-
-    labels.splice(-period.value);
-    datasets.splice(0, datasets.length - 1);
-  }
-
-  extendLabels(labels: string[], period: number) {
-    const lbls = [...labels];
-    for (let i = 0; i < period; i++) {
-      const last = lbls[lbls.length - 1];
-      const next = new Date(last);
-
-      next.setMonth(next.getMonth() + 1);
-      lbls.push(next.toDateString());
+    getForecastChart(): AppChart {
+        return {
+            series: [],
+            xaxis: { type: 'datetime' },
+            yaxis: { labels: { formatter: val => Helpers.formatCurrency(val) } },
+            chart: {
+                type: 'area', animations: { enabled: false }, toolbar: { show: true }
+            },
+            legend: { position: 'top' },
+            colors: ['#e74c3c', '#f1c40f', '#3498db'],
+            markers: { size: 5 },
+            title: { text: 'Прогнозирование расходов', align: 'center' },
+            dataLabels: { enabled: false },
+            tooltip: {
+                x: { format: 'dd.MM.yyyy' },
+                y: { formatter: val => Helpers.formatCurrency(val) }
+            }
+        };
     }
 
-    return lbls;
-  }
+    selectedPeriod({ value: period }) {
+        this.loading = true;
 
-  async getLineChart(): Promise<Chart> {
-    const periodRecords = await this.getPeriodData();
-    const labels = [...new Set(periodRecords.map(r => r.date.toDateString()))];
-    const temp = {
-      expenses: Array(labels.length).fill(0)
-    };
-    const expenses = periodRecords.filter(r => r.type === RecordType.expense);
+        const formMethods = this.form.controls.methods.value as ForecastMethods[];
+        const series = this.forecastChart.series as ApexAxisChartSeries;
+        const expenses = series[0].data as number[];
+        const addSeries = [];
+        const methods = {
+            movingAverage: formMethods.includes('movingAverage'),
+            neuralModel: formMethods.includes('neuralModel')
+        };
 
-
-    labels.forEach((l, i) => {
-      const getIndex = r => r.date.toDateString() === l;
-      const expenseIndex = expenses.findIndex(getIndex);
-
-      if (expenseIndex !== -1) {
-        temp.expenses[i] = expenses[expenseIndex].amount;
-      }
-    });
-
-    return {
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Расходы',
-            data: temp.expenses,
-            borderColor: 'red',
-            backgroundColor: 'transparent'
-          }
-        ]
-      },
-      options: {
-        scales: {
-          yAxes: [
-            {
-              display: true,
-              ticks: {
-                beginAtZero: true,
-                callback: (value, i, values) => Helpers.formatCurrency(+value)
-              }
-            }
-          ],
-          xAxes: [
-            {
-              display: true,
-              ticks: {
-                callback: (value, i, values) => Helpers.formatDate(value, 'LLLL yyyy')
-              }
-            }
-          ]
-        },
-        tooltips: {
-          mode: 'label',
-          callbacks: {
-            label: (tooltipItem, data) => {
-              const value = +data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-              const label = data.datasets[tooltipItem.datasetIndex].label;
-
-              return `${label}: ${Helpers.formatCurrency(value)}`;
-            }
-          }
+        if (this.lastPeriod) {
+            expenses.splice(expenses.length - this.lastPeriod.value, this.lastPeriod.value);
+            this.forecastChart.labels = this.forecastChart.labels.slice(0, -this.lastPeriod.value);
+            series.splice(1);
+            this.lastPeriod = null;
         }
-      }
-    } as Chart;
-  }
 
-  getPeriodData(): Promise<Record[]> {
-    const dateFn = Sequelize.fn('datetime', Sequelize.col('date'), 'start of month');
+        if (methods.movingAverage || methods.neuralModel) {
+            if (methods.movingAverage) {
+                const MA = new MovingAverage(expenses);
+                const MAValues = MA.forecast(period.value);
+                const averages = MA.averageArray();
 
-    return Record.findAll({
-      attributes: [
-        'type',
-        [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
-        [dateFn, 'date']
-      ],
-      group: ['type', dateFn],
-      order: ['date']
-    });
-  }
+                addSeries.push({
+                    name: 'Прогноз (скользящая средняя)',
+                    data: [...averages, ...MAValues]
+                });
+            }
+            if (methods.neuralModel) {
+                const net = new NeuralModel(expenses);
+                const netValues = net.forecast(period.value);
+
+                addSeries.push({
+                    name: 'Прогноз (нейронная сеть)',
+                    data: [...net.getModelData(), ...netValues]
+                });
+            }
+
+            for (let index = 0; index < period.value; index++) {
+                const lastMonth = this.forecastChart.labels[this.forecastChart.labels.length - 1];
+                const newMonth = new Date(lastMonth);
+
+                expenses.push(null);
+                newMonth.setMonth(newMonth.getMonth() + 1);
+                this.forecastChart.labels = [...this.forecastChart.labels, newMonth.toISOString()];
+            }
+
+            this.lastPeriod = period;
+            this.forecastChart.series = [
+                ...series, ...addSeries
+            ] as ApexAxisChartSeries;
+        }
+
+        this.loading = false;
+    }
 }

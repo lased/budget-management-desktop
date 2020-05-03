@@ -80,4 +80,18 @@ export class AnalyzeService {
             group: [child ? 'subcategoryId' : 'categoryId']
         });
     }
+
+    getMonthlyExpenses(): Promise<Record[]> {
+        const dateFn = Sequelize.fn('datetime', Sequelize.col('date'), 'start of month');
+
+        return Record.findAll({
+            attributes: [
+                [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
+                [dateFn, 'date']
+            ],
+            where: { type: RecordType.expense },
+            group: [dateFn],
+            order: ['date']
+        });
+    }
 }

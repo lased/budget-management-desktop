@@ -1,10 +1,20 @@
 <div class="p-grid p-justify-center">
+  <div class="p-col-6">
+    <app-input type="select" [options]="periods" optionLabel="name" label="Выберите период прогноза"
+      [control]="form.controls.period" (selected)="selectedPeriod($event)"></app-input>
+    <app-input type="checkbox" name="methods" optionLabel="Скользящая средняя" label="Метод прогноза"
+      value="movingAverage" [control]="form.controls.methods">
+    </app-input>
+    <app-input type="checkbox" name="methods" optionLabel="Нейронная сеть" value="neuralModel"
+      [control]="form.controls.methods">
+    </app-input>
+  </div>
   <div class="p-col-10">
-    <ng-container *ngIf="lineChart$ | async as lineChart; else loader">
-      <app-input type="select" [options]="periods" optionLabel="name" label="Выберите период прогноза"
-        [control]="periodControl" (selected)="selectPeriod(lineChart)"></app-input>
-      <p-chart type="line" [data]="lineChart.data" [options]="lineChart.options"></p-chart>
-    </ng-container>
+    <apx-chart *ngIf="!loading; else loader" [xaxis]="forecastChart.xaxis" [yaxis]="forecastChart.yaxis"
+      [series]="forecastChart.series" [chart]="forecastChart.chart" [labels]="forecastChart.labels"
+      [legend]="forecastChart.legend" [title]="forecastChart.title" [tooltip]="forecastChart.tooltip"
+      [dataLabels]="forecastChart.dataLabels" [colors]="forecastChart.colors" [markers]="forecastChart.markers">
+    </apx-chart>
   </div>
 </div>
 

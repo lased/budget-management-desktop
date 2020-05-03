@@ -15,7 +15,8 @@ import {
     ApexYAxis,
     ApexTitleSubtitle,
     ApexTheme,
-    ApexStates
+    ApexStates,
+    ApexMarkers
 } from 'ng-apexcharts';
 
 
@@ -76,4 +77,5 @@ export interface AppChart {
     title?: ApexTitleSubtitle;
     subtitle?: ApexTitleSubtitle;
     theme?: ApexTheme;
+    markers?: ApexMarkers;
 }

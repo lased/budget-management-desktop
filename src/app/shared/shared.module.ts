@@ -22,8 +22,8 @@ import { ToastModule } from 'primeng/toast';
 import { InputMaskModule } from 'primeng/inputmask';
 import { TableModule } from 'primeng/table';
 import { AccordionModule } from 'primeng/accordion';
-import { ChartModule } from 'primeng/chart';
 import { MenubarModule } from 'primeng/menubar';
+import {CheckboxModule} from 'primeng/checkbox';
 
 import { InputComponent } from './components/input/input.component';
 import { LoaderComponent } from './components/loader/loader.component';
@@ -37,7 +37,8 @@ declare const Apex: any;
 Apex.chart = {
   locales: [ruChart],
   defaultLocale: 'ru',
-  height: 350
+  height: 350,
+  toolbar: { show: false }
 };
 
 const Common = [
@@ -62,8 +63,8 @@ const UIComponents = [
   InputMaskModule,
   TableModule,
   AccordionModule,
-  ChartModule,
   MenubarModule,
+  CheckboxModule,
   NgApexchartsModule
 ];
 

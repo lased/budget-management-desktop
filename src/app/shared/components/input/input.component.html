@@ -8,9 +8,11 @@
       </p-inputMask>
     </ng-container>
     <ng-template #elseBlock>
-      <input *ngIf="type === 'text' || type === 'number' || type === 'password'" [placeholder]="placeholder || label"
-        [formControl]="control" [type]="type" pInputText [placeholder]="placeholder || label"
-        [class.ng-dirty.ng-invalid]="control.invalid && control.touched" [class]="'app-input__' + type">
+      <p-checkbox *ngIf="type === 'checkbox'" [formControl]="control" [name]="name" [value]="value" [label]="optionLabel"
+        [class.ng-dirty.ng-invalid]="control.invalid && control.touched" [class]="'app-input__' + type"></p-checkbox>
+      <input *ngIf="type === 'text' || type === 'number' || type === 'password'" [formControl]="control" [type]="type"
+        pInputText [placeholder]="placeholder || label" [class.ng-dirty.ng-invalid]="control.invalid && control.touched"
+        [class]="'app-input__' + type">
       <p-dropdown *ngIf="type === 'select'" [placeholder]="placeholder || label" styleClass="app-input__select"
         (onChange)="selectedOption($event)" [class.ng-dirty.ng-invalid]="control.invalid && control.touched"
         [autoDisplayFirst]="false" [optionLabel]="optionLabel" [options]="options" [formControl]="control">
