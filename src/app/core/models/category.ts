@@ -12,6 +12,7 @@ export class Category extends Model {
     public name!: string;
     public type!: RecordType;
     public parentId: number;
+    public plan: number;
     public parent: Category;
 
     public readonly createdAt!: Date;
@@ -32,6 +33,10 @@ export function init(sequelize: Sequelize) {
         type: {
             type: DataTypes.TINYINT,
             allowNull: false
+        },
+        plan: {
+            type: DataTypes.DOUBLE,
+            allowNull: true
         }
     }, {
             tableName: 'categories',

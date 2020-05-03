@@ -4,6 +4,8 @@
   </div>
   <div class="p-col-12">
     <app-input label="Наименование" [control]="form.controls.name"></app-input>
+    <app-input label="Планируемое значение ({{ helpers.getCurrencySymbol() }})" type="number"
+      [control]="form.controls.plan"></app-input>
   </div>
   <div class="p-col-12 p-grid p-justify-end" style="padding-right: 0">
     <div class="p-col-4">

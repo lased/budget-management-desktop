@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { Op, Sequelize, IncludeOptions, Includeable } from 'sequelize';
 
 import { AnalyzeService, DateFilter } from '@core/services/analyze.service';
-import { AppChart } from '@core/interfaces';
+import { AppChart, RecordType } from '@core/interfaces';
 import { Helpers } from '@core/helpers.class';
 import { User } from '@core/models/user';
 import { Record } from '@core/models/record';
@@ -19,7 +19,8 @@ export class UsersComponent implements OnInit, OnDestroy {
   loading = true;
   products: boolean;
 
-  userChart: AppChart = {};
+  userChartIncomes: AppChart = {};
+  userChartExpenses: AppChart = {};
 
   subscription: Subscription;
 
@@ -30,17 +31,20 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.products = this.activatedRoute.snapshot.data.products || false;
-    this.userChart = this.getUserChart();
+    this.userChartIncomes = this.getUserChart(RecordType.income);
+    this.userChartExpenses = this.getUserChart(RecordType.expense);
     this.subscription = this.analyzeService.getPeriod().subscribe(period => {
       this.loading = true;
       this.getUserChartData(period).then(_ => this.loading = false);
-    })
+    });
   }
 
-  getUserChart(): AppChart {
+  getUserChart(type: RecordType): AppChart {
+    const typeText = type === RecordType.income ? 'доход' : 'расход';
+
     return {
-      chart: { type: 'pie', events: { dataPointSelection: this.dataPointSelection.bind(this) } },
-      title: { text: 'Пользователи', align: 'center' },
+      chart: { type: 'pie', events: { dataPointSelection: this.dataPointSelection.bind(this, type) } },
+      title: { text: `Пользователи (${typeText})`, align: 'center' },
       legend: { position: 'top' },
       tooltip: { y: { formatter: val => Helpers.formatCurrency(val) } }
     };
@@ -52,29 +56,51 @@ export class UsersComponent implements OnInit, OnDestroy {
       [Op.lte]: period.max
     };
     const include: Includeable[] = [{ model: User, as: 'user' }];
+    let field = 'amount';
+    let group = ['type', 'userId'];
+    let having = { [field]: { [Op.not]: null } };
 
     if (this.products) {
+      field = 'products.amount';
+      group = ['userId'];
+      having = {};
       include.push({ model: Product, as: 'products' });
     }
 
     const records = await Record.findAll({
       include,
-      attributes: [[Sequelize.literal(`SUM(${this.products ? 'products.amount' : 'amount'})`), 'amount']],
-      where: { date: dateQuery },
-      group: ['userId']
+      group,
+      having,
+      attributes: [
+        'type',
+        [Sequelize.literal(`SUM(${field})`), 'amount']
+      ],
+      where: { date: dateQuery }
     }) as Record[];
 
-    this.userChart.labels = records.map(r => r.user.name);
-    this.userChart.series = records.map(r => r.amount);
+    if (this.products) {
+      this.setUserChartLabelsAndSeries(this.userChartExpenses, records.filter(r => r.amount > 0));
+    } else {
+      this.setUserChartLabelsAndSeries(this.userChartIncomes, records.filter(r => r.type === RecordType.income));
+      this.setUserChartLabelsAndSeries(this.userChartExpenses, records.filter(r => r.type === RecordType.expense));
+
+    }
   }
 
-  dataPointSelection(_, __, config) {
+  setUserChartLabelsAndSeries(chart: AppChart, records: Record[]) {
+    chart.labels = records.map(r => r.user.name);
+    chart.series = records.map(r => r.amount);
+  }
+
+  dataPointSelection(type, _, __, config) {
     const arrIndexes: number[] = config.selectedDataPoints[0];
     const filters: { [s: string]: FilterMetadata } = {
+      type: { value: null },
       'user.name': { value: null }
     };
 
     if (arrIndexes.length) {
+      filters.type = { value: type }
       filters['user.name'] = {
         value: config.w.config.labels[arrIndexes[0]]
       };
