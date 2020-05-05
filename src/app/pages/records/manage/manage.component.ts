@@ -130,7 +130,7 @@ export class RecordManageComponent implements OnInit {
   }
 
   sumProducts(products: Product[]) {
-    return Math.floor(products.reduce((acc, curr) => acc + curr.amount, 0));
+    return products.reduce((acc, curr) => acc + curr.amount, 0);
   }
 
   isExpense() {
@@ -282,7 +282,7 @@ export class RecordManageComponent implements OnInit {
 
     record.categoryId = values.category.id;
     record.userId = values.user.id;
-    record.amount = +(Number(values.amount).toFixed(2));
+    record.amount = +this.helpers.getNumber(values.amount).toFixed(2);
     record.type = values.type;
     record.date = values.date;
     record.note = values.note;

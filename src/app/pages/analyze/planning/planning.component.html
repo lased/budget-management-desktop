@@ -1,0 +1,11 @@
+<div class="p-grid">
+  <div class="p-col-12">
+    <app-table *ngIf="!loading; else loader" [tree]="true" [actionsCallback]="actionsCallback" [actionsSpan]=".7"
+      [columns]="columns" [value]="records" [treeTogglerIndex]="1" [totalRecords]="records.length"></app-table>
+  </div>
+</div>
+
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>

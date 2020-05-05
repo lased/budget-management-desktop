@@ -2,7 +2,7 @@
   <p-button *ngIf="checkFunction(actionsCallback.onCreate)" class="app-table__create" type="button" label="Добавить"
     icon="pi pi-plus" styleClass="ui-button-raised ui-button-secondary" (onClick)="actionsCallback.onCreate()">
   </p-button>
-  <p-table [paginator]="true" [rows]="rows" [rowsPerPageOptions]="rowsPerPageOptions" [lazy]="lazy"
+  <p-table *ngIf="!tree" [paginator]="true" [rows]="rows" [rowsPerPageOptions]="rowsPerPageOptions" [lazy]="lazy"
     [resetPageOnSort]="false" [totalRecords]="totalRecords" [loading]="loading" [scrollable]="true" [columns]="columns"
     [value]="value" (onLazyLoad)="onLazyLoad($event)" (onSort)="onSort($event)">
 
@@ -55,4 +55,59 @@
     </ng-template>
 
   </p-table>
+
+  <p-treeTable *ngIf="tree" [columns]="columns" [value]="value" [loading]="loading" [scrollable]="true"
+    [paginator]="true" [rows]="rows" [rowsPerPageOptions]="rowsPerPageOptions" [resetPageOnSort]="false"
+    [totalRecords]="totalRecords">
+
+    <ng-template pTemplate="colgroup" let-columns>
+      <colgroup>
+        <col *ngFor="let col of columns" [style.width.px]="150 * (col.span || 1)">
+        <col *ngIf="actions" [style.width.px]="150 * actionsSpan">
+      </colgroup>
+    </ng-template>
+
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <ng-container *ngFor="let col of columns">
+          <th *ngIf="col.sortable !== false" [ttSortableColumn]="col.field">
+            {{ col.header }}
+            <p-treeTableSortIcon [field]="col.field"></p-treeTableSortIcon>
+          </th>
+          <th *ngIf="col.sortable === false">
+            {{ col.header }}
+          </th>
+        </ng-container>
+        <th *ngIf="actions">Действия</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+      <tr>
+        <td *ngFor="let col of columns; let i = index">
+          <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == treeTogglerIndex"></p-treeTableToggler>
+          {{ col.format ? col.format(getRowData(rowData, col.field), i, rowData) || '' : getRowData(rowData, col.field) }}
+        </td>
+        <td *ngIf="actions">
+          <div class="app-table__actions">
+            <p-button *ngIf="checkFunction(actionsCallback.onUpdate)" type="button" icon="pi pi-pencil"
+              styleClass="ui-button-raised ui-button-info" (onClick)="actionsCallback.onUpdate(rowData)">
+            </p-button>
+            <p-button *ngIf="checkFunction(actionsCallback.onDelete)" type="button" icon="pi pi-trash"
+              styleClass="ui-button-raised ui-button-danger" (onClick)="actionsCallback.onDelete(rowData)">
+            </p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage" let-columns>
+      <tr>
+        <td [attr.colspan]="columns.length + +actions" style="text-align: center;">
+          Записей не найдено
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-treeTable>
 </div>

@@ -9,6 +9,7 @@ import { IndicatorsComponent } from './expenses-and-incomes/indicators/indicator
 import { CategoriesComponent } from './shared/charts/categories/categories.component';
 import { RecordType } from '@core/interfaces';
 import { UsersComponent } from './shared/charts/users/users.component';
+import { PlanningComponent } from './planning/planning.component';
 
 const routes: Routes = [
     {
@@ -23,6 +24,7 @@ const routes: Routes = [
                     { path: '**', redirectTo: 'indicators', pathMatch: 'full' }
                 ]
             },
+            { path: 'planning', component: PlanningComponent },
             {
                 path: 'products',
                 component: ProductsAnalyzeComponent,

@@ -34,6 +34,7 @@ export class AnalyzeComponent implements OnInit, OnDestroy {
     this.analyzeService.setPeriod(this.periodControl.value);
     this.items = [
       { label: 'Доходы и расходы', icon: '', routerLink: ['expenses-and-incomes'] },
+      { label: 'Планирование', icon: '', routerLink: ['planning'] },
       { label: 'Товары и услуги', icon: '', routerLink: ['products'] },
       { label: 'Прогноз', icon: '', routerLink: ['forecast'] },
     ];

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ReplaySubject, Subject } from 'rxjs';
-import { Op, Sequelize } from 'sequelize';
+import { Op, Sequelize, FindOptions } from 'sequelize';
 import { FilterMetadata } from 'primeng/api';
 
 import { RecordType } from '@core/interfaces';
@@ -93,5 +93,70 @@ export class AnalyzeService {
             group: [dateFn],
             order: ['date']
         });
+    }
+
+    async getPlanningData(): Promise<Record[]> {
+        const startMonth = Sequelize.fn('datetime', 'now', 'start of month');
+        const endMonth = Sequelize.fn('datetime', 'now', 'start of month', '+1 month');
+        const catQueryOptions = (ids, prefix = '') => ({
+            attributes: {
+                include: [
+                    [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
+                ],
+                exclude: [!prefix ? 'subcategoryId' : '']
+            },
+            where: {
+                date: {
+                    [Op.gte]: startMonth,
+                    [Op.lte]: endMonth
+                },
+                [prefix + 'categoryId']: { [Op.in]: ids },
+            },
+            group: [prefix + 'categoryId']
+        } as FindOptions);
+        const categories: Category[] = await Category.findAll({ where: { plan: { [Op.not]: null } } });
+        const catsId = categories.map(c => c.id);
+        let emptyFactValues: Category[] = [];
+        let records: Record[] = [];
+
+        records.push(
+            ...await Record.findAll(catQueryOptions(catsId)),
+            ...await Record.findAll(catQueryOptions(catsId, 'sub'))
+        );
+        emptyFactValues = categories.filter(c => !records.some(r => r.subcategoryId === c.id || r.categoryId === c.id));
+        records = records.map(r => {
+            for (let index = 0; index < categories.length; index++) {
+                const category = categories[index];
+
+                if (category.id === r.categoryId) {
+                    r.category = category;
+                }
+                if (category.id === r.subcategoryId) {
+                    r.subcategory = category;
+                }
+            }
+
+            return r;
+        });
+
+        return [
+            ...records,
+            ...emptyFactValues.map(c => {
+                const rec = new Record({
+                    amount: 0,
+                    categoryId: c.parentId ? c.parentId : c.id,
+                    subcategoryId: c.parentId ? c.parentId : null
+                });
+
+                if (c.parentId) {
+                    rec.category = categories.find(cat => c.parentId === cat.id);
+                    rec.subcategory = c;
+                } else {
+                    rec.category = c;
+                }
+
+                return rec;
+            })
+        ];
     }
 }

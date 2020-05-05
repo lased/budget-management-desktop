@@ -2,7 +2,7 @@
   <div class="p-col-12 analyze-menu">
     <p-tabMenu [model]="items"></p-tabMenu>
   </div>
-  <div *ngIf="currentPath !== 'forecast'" class="period">
+  <div *ngIf="currentPath !== 'forecast' && currentPath !== 'planning'" class="period">
     <div class="period__text">Период выборки данных: </div>
     <div class="period__range">
       <app-input type="daterange" [control]="periodControl" placeholder="Выберите период"

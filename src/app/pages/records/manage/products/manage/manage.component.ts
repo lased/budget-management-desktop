@@ -52,9 +52,9 @@ export class ProductManageComponent implements OnInit {
   fixNumber(form: any) {
     const f = Object.assign({}, form);
 
-    f.quantity = +(Number(this.helpers.getNumber(f.quantity)).toFixed(3));
-    f.price = +(Number(this.helpers.getNumber(f.price)).toFixed(2));
-    f.amount = +(Number(this.helpers.getNumber(f.price * f.quantity)).toFixed(2));
+    f.quantity = +this.helpers.getNumber(f.quantity).toFixed(3);
+    f.price = +this.helpers.getNumber(f.price).toFixed(2);
+    f.amount = +(f.price * f.quantity).toFixed(2);
 
     return f;
   }

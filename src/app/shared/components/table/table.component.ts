@@ -9,6 +9,8 @@ import { TableColumn, TableActions } from './table.interface';
   styleUrls: ['./table.component.scss']
 })
 export class TableComponent {
+  @Input() tree = false;
+  @Input() treeTogglerIndex = 0; 
   @Input() actions = true;
   @Input() actionsSpan = 1;
   @Input() actionsCallback: TableActions = {};

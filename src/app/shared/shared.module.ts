@@ -23,7 +23,8 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { TableModule } from 'primeng/table';
 import { AccordionModule } from 'primeng/accordion';
 import { MenubarModule } from 'primeng/menubar';
-import {CheckboxModule} from 'primeng/checkbox';
+import { CheckboxModule } from 'primeng/checkbox';
+import { TreeTableModule } from 'primeng/treetable';
 
 import { InputComponent } from './components/input/input.component';
 import { LoaderComponent } from './components/loader/loader.component';
@@ -65,6 +66,7 @@ const UIComponents = [
   AccordionModule,
   MenubarModule,
   CheckboxModule,
+  TreeTableModule,
   NgApexchartsModule
 ];
 

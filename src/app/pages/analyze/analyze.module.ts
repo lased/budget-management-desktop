@@ -12,6 +12,8 @@ import { IndicatorsComponent } from './expenses-and-incomes/indicators/indicator
 import { CategoriesComponent } from './shared/charts/categories/categories.component';
 import { AnalyzeTableComponent } from './shared/charts/table/table.component';
 import { UsersComponent } from './shared/charts/users/users.component';
+import { PlanningComponent } from './planning/planning.component';
+import { PlanningManageComponent } from './planning/manage/manage.component';
 
 @NgModule({
   declarations: [
@@ -22,11 +24,14 @@ import { UsersComponent } from './shared/charts/users/users.component';
     IndicatorsComponent,
     CategoriesComponent,
     AnalyzeTableComponent,
-    UsersComponent
+    UsersComponent,
+    PlanningComponent,
+    PlanningManageComponent
   ],
   imports: [
     SharedModule,
     AnalyzeRoutingModule
-  ]
+  ],
+  entryComponents: [PlanningManageComponent]
 })
 export class AnalyzeModule { }

@@ -1,0 +1,12 @@
+<form class="p-grid app-form" (ngSubmit)="save()">
+  <div *ngFor="let input of inputs" class="p-col-12">
+    <app-input [type]="input.type" [label]="input.label" [options]="input.options || []"
+      [optionLabel]="input.optionLabel" [control]="input.control"
+      (selected)="input.selected ? input.selected($event.value) : ''">
+    </app-input>
+  </div>
+  <div class="p-col-12 app-form__actions">
+    <button pButton type="submit" [label]="record ? 'Сохранить' : 'Добавить'" [disabled]="form.invalid"></button>
+    <button pButton type="button" label="Отмена" class="ui-button-secondary" (click)="close()"></button>
+  </div>
+</form>
