@@ -69,7 +69,7 @@ export class PlanningManageComponent implements OnInit {
     const cats: Category[] = await Category.findAll({ where: { parentId: category.id } });
 
     if (cats.length) {
-      if (!this.record.subcategory) {
+      if (!this.record?.subcategoryId) {
         const sumPlans = cats.reduce((acc, val) => acc + val.plan, 0);
 
         this.form.controls.plan.setValidators([Validators.required, Validators.min(sumPlans)]);
@@ -87,7 +87,7 @@ export class PlanningManageComponent implements OnInit {
   async save() {
     const formValues = this.form.value;
     const pk = formValues.subcategory?.id || formValues.category?.id;
-    const recPlan = this.record.subcategory?.plan || this.record.category?.plan || 0;
+    const recPlan = this.record?.subcategory?.plan || this.record?.category?.plan || 0;
 
     if (recPlan === formValues.plan) {
       this.ref.close();

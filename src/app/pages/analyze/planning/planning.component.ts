@@ -33,8 +33,7 @@ export class PlanningComponent implements OnInit {
     };
     this.columns = [
       { field: 'type', header: 'Тип', span: .6, format: type => type === RecordType.income ? 'Доход' : 'Расход' },
-      { field: 'category.name', header: 'Категория' },
-      { field: 'subcategory.name', header: 'Подкатегория' },
+      { field: 'categoryName', header: 'Категория' },
       { field: 'plan', header: 'План', format: val => Helpers.formatCurrency(val) },
       { field: 'amount', header: 'Факт', format: val => Helpers.formatCurrency(val) },
       { field: 'difference', header: 'Разница', format: val => Helpers.formatCurrency(val) }
@@ -42,25 +41,15 @@ export class PlanningComponent implements OnInit {
     this.getPlanningData();
   }
 
-  getPlan(record: Record, ) {
-    return record.subcategory ? record.subcategory.plan : record.category.plan;
-  }
-
   async getPlanningData() {
     this.loading = true;
 
     const treeData: TreeNode[] = [];
     const recs = await this.analyzeService.getPlanningData();
-    const getRec = r => {
-      r.plan = this.getPlan(r);
-      r.difference = r.plan - r.amount;
-
-      return { data: r };
-    };
 
     recs.forEach(r => {
       if (!r.subcategory) {
-        treeData.push(getRec(r));
+        treeData.push({ data: r });
       } else {
         const treeNode = treeData.find(d => {
           const rec = d.data as Record;
@@ -73,7 +62,7 @@ export class PlanningComponent implements OnInit {
             treeNode.children = [];
           }
 
-          treeNode.children.push(getRec(r));
+          treeNode.children.push({ data: r });
         }
       }
     });
@@ -102,9 +91,9 @@ export class PlanningComponent implements OnInit {
   }
 
   create() {
-    this.openDialog('Добавить показатель').onClose.subscribe((cat: Category) => {
+    this.openDialog('Добавить показатель').onClose.subscribe(async (cat: Category) => {
       if (cat) {
-        this.setCategoryPlan(cat);
+        this.setCategoryPlan(cat, (await Category.findByPk(cat.id))?.plan || 0);
       }
     });
   }
@@ -112,11 +101,9 @@ export class PlanningComponent implements OnInit {
   update(record: Record) {
     const oldPlan = record.subcategory?.plan || 0;
 
-    this.openDialog('Изменить показатель', { record }).onClose.subscribe(async (cat: Category) => {
+    this.openDialog('Изменить показатель', { record }).onClose.subscribe((cat: Category) => {
       if (cat) {
-        if (cat) {
-          this.setCategoryPlan(cat, oldPlan);
-        }
+        this.setCategoryPlan(cat, oldPlan);
       }
     });
   }
@@ -127,16 +114,14 @@ export class PlanningComponent implements OnInit {
       const cat = await Category.findByPk(subcat.parentId);
 
       cat.plan -= subcat.plan;
-      subcat.plan = null;
-      subcat.save();
-      cat.save();
+      await subcat.update({ plan: null });
+      await cat.save();
     } else {
       const cat = record.category;
       const subcats: Category[] = await Category.findAll({ where: { parentId: cat.id, plan: { [Op.not]: null } } });
 
       subcats.forEach(async c => await c.update({ plan: null }));
-      cat.plan = null;
-      cat.save();
+      await cat.update({ plan: null });
     }
 
     await this.getPlanningData();

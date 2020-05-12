@@ -1,5 +1,8 @@
 <div class="p-grid">
   <div class="p-col-12">
+    <app-planning-indicators></app-planning-indicators>
+  </div>
+  <div class="p-col-12">
     <app-table *ngIf="!loading; else loader" [tree]="true" [actionsCallback]="actionsCallback" [actionsSpan]=".7"
       [columns]="columns" [value]="records" [treeTogglerIndex]="1" [totalRecords]="records.length"></app-table>
   </div>

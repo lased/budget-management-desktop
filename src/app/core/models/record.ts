@@ -19,6 +19,10 @@ export class Record extends Model {
     public note: string;
     public products: Product[];
 
+    public categoryName: string;
+    public plan: number;
+    public difference: number;
+
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 }

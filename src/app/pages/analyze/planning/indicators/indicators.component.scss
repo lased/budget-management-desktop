@@ -1,0 +1,29 @@
+.indicators {
+  .block {
+    background-color: grey;
+  }
+
+  .currency-rate {
+    &__title {}
+
+    &__text {}
+  }
+
+  .goods-changes {}
+
+  .month-changes {}
+
+  .month-average-percent {}
+
+  .text {
+    font-weight: bold;
+
+    &--red {
+      color: #c0392b;
+    }
+
+    &--green {
+      color: #27ae60;
+    }
+  }
+}

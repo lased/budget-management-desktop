@@ -124,7 +124,7 @@ export class AnalyzeService {
             ...await Record.findAll(catQueryOptions(catsId, 'sub'))
         );
         emptyFactValues = categories.filter(c => !records.some(r => r.subcategoryId === c.id || r.categoryId === c.id));
-        records = records.map(r => {
+        records = records.map((r: any) => {
             for (let index = 0; index < categories.length; index++) {
                 const category = categories[index];
 
@@ -134,6 +134,8 @@ export class AnalyzeService {
                 if (category.id === r.subcategoryId) {
                     r.subcategory = category;
                 }
+
+                r.categoryName = r.subcategory?.name || r.category?.name || '';
             }
 
             return r;
@@ -157,6 +159,14 @@ export class AnalyzeService {
 
                 return rec;
             })
-        ];
+        ].map(r => {
+            const isSubcat = r.subcategory;
+
+            r.plan = isSubcat ? r.subcategory.plan : r.category.plan;
+            r.difference = r.plan - r.amount;
+            r.categoryName = isSubcat ? r.subcategory.name : r.category.name;
+
+            return r;
+        });
     }
 }
