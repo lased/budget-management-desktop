@@ -16,7 +16,7 @@ import { AnalyzeService } from '../../core/services/analyze.service';
 export class AnalyzeComponent implements OnInit, OnDestroy {
   items: MenuItem[];
   periodControl: FormControl;
-  currentPath: string;
+  periodHidden: boolean;
   subscriptionRouter: Subscription;
 
   constructor(
@@ -28,6 +28,7 @@ export class AnalyzeComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const currentDate = new Date();
     const previousDate = new Date();
+    let tmpSubscription: Subscription;
 
     previousDate.setMonth(currentDate.getMonth() - 1);
     this.periodControl = new FormControl([previousDate, currentDate]);
@@ -38,19 +39,27 @@ export class AnalyzeComponent implements OnInit, OnDestroy {
       { label: 'Товары и услуги', icon: '', routerLink: ['products'] },
       { label: 'Прогноз', icon: '', routerLink: ['forecast'] },
     ];
-    this.currentPath = this.router.url.split('/').slice(-1)[0];
+    tmpSubscription = this.getCurrentRoute(this.activatedRoute).data.subscribe(data => {
+      this.periodHidden = data.periodHidden;
+    });
     this.subscriptionRouter = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(_ => this.activatedRoute),
-      map(route => {
-        while (route.firstChild) { route = route.firstChild; }
+      map(route => this.getCurrentRoute(route)),
+      switchMap(route => route.data)
+    ).subscribe(data => {
+      if (tmpSubscription) {
+        tmpSubscription.unsubscribe();
+      }
 
-        return route;
-      }),
-      switchMap(route => route.url)
-    ).subscribe(([{ path }]) => {
-      this.currentPath = path;
+      this.periodHidden = data.periodHidden;
     });
+  }
+
+  getCurrentRoute(route: ActivatedRoute) {
+    while (route.firstChild) { route = route.firstChild; }
+
+    return route;
   }
 
   selectedPeriod() {

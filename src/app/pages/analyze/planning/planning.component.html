@@ -1,6 +1,9 @@
 <div class="p-grid">
+  <div class="app-analyze__chart-menu">
+    <p-tabMenu [model]="charts"></p-tabMenu>
+  </div>
   <div class="p-col-12">
-    <app-planning-indicators></app-planning-indicators>
+    <router-outlet></router-outlet>
   </div>
   <div class="p-col-12">
     <app-table *ngIf="!loading; else loader" [tree]="true" [actionsCallback]="actionsCallback" [actionsSpan]=".7"

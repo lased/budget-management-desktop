@@ -15,6 +15,7 @@ import { UsersComponent } from './shared/charts/users/users.component';
 import { PlanningComponent } from './planning/planning.component';
 import { PlanningManageComponent } from './planning/manage/manage.component';
 import { PlanningIndicatorsComponent } from './planning/indicators/indicators.component';
+import { PlanningCategoriesComponent } from './planning/categories/categories.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { PlanningIndicatorsComponent } from './planning/indicators/indicators.co
     UsersComponent,
     PlanningComponent,
     PlanningManageComponent,
-    PlanningIndicatorsComponent
+    PlanningIndicatorsComponent,
+    PlanningCategoriesComponent
   ],
   imports: [
     SharedModule,

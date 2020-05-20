@@ -63,7 +63,7 @@ export class ForecastAnalyzeComponent implements OnInit {
         return {
             series: [],
             xaxis: { type: 'datetime' },
-            yaxis: { labels: { formatter: val => Helpers.formatCurrency(val) } },
+            yaxis: { labels: { formatter: val => Helpers.formatCurrency(val || 0) } },
             chart: {
                 type: 'area', animations: { enabled: false }, toolbar: { show: true }
             },

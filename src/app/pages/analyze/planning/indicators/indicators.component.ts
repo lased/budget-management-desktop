@@ -116,6 +116,6 @@ export class PlanningIndicatorsComponent implements OnInit {
 
     const percent = -(oldPrice - newPrice) / oldPrice * 100;
 
-    return [percent, (oldPrice * percent / 100) / counter];
+    return [percent || 0, (oldPrice * percent / 100) / counter || 0];
   }
 }

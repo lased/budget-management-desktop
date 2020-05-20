@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DialogService, TreeNode } from 'primeng/api';
+import { DialogService, TreeNode, MenuItem } from 'primeng/api';
 import { Op } from 'sequelize';
 
 import { RecordType } from '@core/interfaces';
@@ -19,6 +19,7 @@ export class PlanningComponent implements OnInit {
   actionsCallback: TableActions;
   columns: TableColumn[];
   records: TreeNode[];
+  charts: MenuItem[];
 
   constructor(
     private dialog: DialogService,
@@ -26,17 +27,31 @@ export class PlanningComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.charts = [
+      { label: 'Индикаторы', icon: '', routerLink: ['indicators'] },
+      { label: 'Категории', icon: '', routerLink: ['categories'] },
+    ];
     this.actionsCallback = {
       onCreate: this.create.bind(this),
       onDelete: this.delete.bind(this),
       onUpdate: this.update.bind(this)
     };
     this.columns = [
-      { field: 'type', header: 'Тип', span: .6, format: type => type === RecordType.income ? 'Доход' : 'Расход' },
+      { field: 'type', header: 'Тип', span: .6, format: (val, _, row) => row.category.type === RecordType.income ? 'Доход' : 'Расход' },
       { field: 'categoryName', header: 'Категория' },
       { field: 'plan', header: 'План', format: val => Helpers.formatCurrency(val) },
       { field: 'amount', header: 'Факт', format: val => Helpers.formatCurrency(val) },
-      { field: 'difference', header: 'Разница', format: val => Helpers.formatCurrency(val) }
+      {
+        field: 'difference',
+        header: 'Разница',
+        format: (val, _, row) => {
+          if (row.category.type === RecordType.income) {
+            val = -val;
+          }
+
+          return Helpers.formatCurrency(val);
+        }
+      }
     ];
     this.getPlanningData();
   }

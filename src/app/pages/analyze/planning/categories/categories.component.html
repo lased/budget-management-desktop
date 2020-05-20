@@ -1,0 +1,19 @@
+<div class="p-grid p-dir-col p-align-center">
+  <div class="p-col-6 p-grid p-justify-between">
+    <div class="p-col" *ngFor="let input of inputs">
+      <app-input [control]="input.control" [placeholder]="input.placeholder" [type]="input.type"
+        [options]="input.options" [optionLabel]="input.optionLabel" (selected)="input.selected($event.value)">
+      </app-input>
+    </div>
+  </div>
+  <div class="p-col-6" *ngIf="selected">
+    <apx-chart *ngIf="!loading; else loader" [series]="categoryChart.series" [chart]="categoryChart.chart"
+      [labels]="categoryChart.labels" [xaxis]="categoryChart.xaxis" [yaxis]="categoryChart.yaxis"
+      [tooltip]="categoryChart.tooltip" [plotOptions]="categoryChart.plotOptions"
+      [dataLabels]="categoryChart.dataLabels"></apx-chart>
+  </div>
+</div>
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>

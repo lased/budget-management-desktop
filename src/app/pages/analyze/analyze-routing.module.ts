@@ -10,6 +10,8 @@ import { CategoriesComponent } from './shared/charts/categories/categories.compo
 import { RecordType } from '@core/interfaces';
 import { UsersComponent } from './shared/charts/users/users.component';
 import { PlanningComponent } from './planning/planning.component';
+import { PlanningCategoriesComponent } from './planning/categories/categories.component';
+import { PlanningIndicatorsComponent } from './planning/indicators/indicators.component';
 
 const routes: Routes = [
     {
@@ -24,7 +26,15 @@ const routes: Routes = [
                     { path: '**', redirectTo: 'indicators', pathMatch: 'full' }
                 ]
             },
-            { path: 'planning', component: PlanningComponent },
+            {
+                path: 'planning',
+                component: PlanningComponent,
+                children: [
+                    { path: 'indicators', component: PlanningIndicatorsComponent, data: { periodHidden: true } },
+                    { path: 'categories', component: PlanningCategoriesComponent, data: { periodHidden: true } },
+                    { path: '**', redirectTo: 'categories', pathMatch: 'full' }
+                ]
+            },
             {
                 path: 'products',
                 component: ProductsAnalyzeComponent,
@@ -34,7 +44,7 @@ const routes: Routes = [
                     { path: '**', redirectTo: `categories/${RecordType.expense}`, pathMatch: 'full' }
                 ]
             },
-            { path: 'forecast', component: ForecastAnalyzeComponent },
+            { path: 'forecast', component: ForecastAnalyzeComponent, data: { periodHidden: true } },
             { path: '**', redirectTo: 'expenses-and-incomes', pathMatch: 'full' }
         ]
     },
