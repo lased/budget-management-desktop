@@ -1,23 +1,26 @@
 import { Component, OnInit } from '@angular/core';
-import { Sequelize, Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { switchMap } from 'rxjs/operators';
+import { Message } from 'primeng/api';
 
-import { CbrService, CurrencyData } from '@core/services/cbr.service';
-import { Helpers } from '@core/helpers.class';
-import { Product } from '@core/models/product';
 import { Record } from '@core/models/record';
+import { Product } from '@core/models/product';
+import { Helpers } from '@core/helpers.class';
+import { CurrencyData, CbrService } from '@core/services/cbr.service';
 
 @Component({
-  selector: 'app-planning-indicators',
-  templateUrl: './indicators.component.html',
-  styleUrls: ['./indicators.component.scss']
+  selector: 'app-planning-currency-rate',
+  templateUrl: './currency-rate.component.html',
+  styleUrls: ['./currency-rate.component.scss']
 })
-export class PlanningIndicatorsComponent implements OnInit {
+export class PlanningCurrencyRateComponent implements OnInit {
   helpers = Helpers;
   loading = true;
   inflation = [];
   currencyData: CurrencyData;
   analyzePercent: number;
+  currencyMessage: Message[] = [];
+  productsMessage: Message[] = [];
 
   constructor(
     private cbrService: CbrService
@@ -33,24 +36,35 @@ export class PlanningIndicatorsComponent implements OnInit {
       })
     ).subscribe(inf => {
       this.inflation = inf;
+      this.setMessages();
       this.loading = false;
     });
   }
 
-  getFormatedCurrency(currency: number, abs = false) {
-    return this.helpers.formatCurrency(abs ? Math.abs(currency) : currency);
+  setMessages() {
+    this.currencyMessage.push({
+      severity: this.analyzePercent > 0 ? 'warn' : 'info',
+      summary: 'По данным курса доллара:',
+      detail: `возможно ${
+        this.analyzePercent > 0 ? 'повышение' : 'снижение'
+        } цен импортных товаров на ${this.helpers.formatNumber(Math.abs(this.analyzePercent))}%`
+    });
+
+    if (this.inflation[0] !== 0) {
+      this.productsMessage.push({
+        severity: this.inflation[0] > 0 ? 'warn' : 'info',
+        summary: 'По данным товаров и услуг:',
+        detail: `цены в среднем стали ${
+          this.inflation[0] > 0 ? 'больше' : 'меньше'} на ${this.helpers.formatCurrency(Math.abs(this.inflation[1]))}
+          (${this.helpers.formatNumber(Math.abs(this.inflation[0]))}%)`
+      });
+    }
   }
 
-  getCompareText(num: number, probability = false) {
-    return num > 0
-      ? probability ? 'повышение' : 'больше'
-      : probability ? 'понижение' : 'меньше';
-  }
-
-  getClassName(value: number, reverse = false) {
-    return 'text ' + (
-      reverse && value > 0 ? 'text--red' : 'text--green'
-    );
+  getArrowClassName(value: number) {
+    return value >= 0
+      ? 'currency-rate__arrow--up'
+      : 'currency-rate__arrow--down';
   }
 
   getAnalyzePercent() {
@@ -118,4 +132,5 @@ export class PlanningIndicatorsComponent implements OnInit {
 
     return [percent || 0, (oldPrice * percent / 100) / counter || 0];
   }
+
 }

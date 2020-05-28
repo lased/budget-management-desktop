@@ -1,0 +1,80 @@
+.currency-rate {
+  $rate: &;
+  color: #333;
+  text-align: center;
+  background-color: #fff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);
+  padding: 15px;
+  border-radius: 15px;
+
+  div {
+    padding: 5px;
+  }
+
+  &__title {
+    font-weight: 700;
+    font-size: 1.2rem;
+
+    &::after {
+      font-family: 'primeicons';
+      display: block;
+      content: '\e96b';
+      font-size: 3rem;
+      color: #85bb65;
+    }
+  }
+
+  &__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+
+    &::before {
+      font-size: 1.2rem;
+    }
+  }
+
+  &__arrow--down {
+
+    &#{$rate}__value::before,
+    #{$rate}__range-value::before,
+    #{$rate}__changes {
+      color: #e74c3c;
+    }
+
+    #{$rate}__range-value::before,
+    &#{$rate}__value::before {
+      font-family: 'primeicons';
+      content: '\e919';
+    }
+  }
+
+  &__arrow--up {
+
+    &#{$rate}__value::before,
+    #{$rate}__range-value::before,
+    #{$rate}__changes {
+      color: #2ecc71;
+    }
+
+    #{$rate}__range-value::before,
+    &#{$rate}__value::before {
+      font-family: 'primeicons';
+      content: '\e91c';
+    }
+  }
+
+  &__changes,
+  &__value>div {
+    font-size: 1rem;
+  }
+
+  &__range {
+    &-value {
+      font-weight: 700;
+
+      &e::before {
+        font-size: .8rem;
+      }
+    }
+  }
+}

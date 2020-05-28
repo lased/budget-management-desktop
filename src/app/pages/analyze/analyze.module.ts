@@ -14,8 +14,8 @@ import { AnalyzeTableComponent } from './shared/charts/table/table.component';
 import { UsersComponent } from './shared/charts/users/users.component';
 import { PlanningComponent } from './planning/planning.component';
 import { PlanningManageComponent } from './planning/manage/manage.component';
-import { PlanningIndicatorsComponent } from './planning/indicators/indicators.component';
 import { PlanningCategoriesComponent } from './planning/categories/categories.component';
+import { PlanningCurrencyRateComponent } from './planning/currency-rate/currency-rate.component';
 
 @NgModule({
   declarations: [
@@ -29,8 +29,8 @@ import { PlanningCategoriesComponent } from './planning/categories/categories.co
     UsersComponent,
     PlanningComponent,
     PlanningManageComponent,
-    PlanningIndicatorsComponent,
-    PlanningCategoriesComponent
+    PlanningCategoriesComponent,
+    PlanningCurrencyRateComponent
   ],
   imports: [
     SharedModule,

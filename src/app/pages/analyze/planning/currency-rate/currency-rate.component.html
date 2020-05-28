@@ -1,0 +1,59 @@
+<div class="p-grid p-justify-around">
+  <div class="p-col-10">
+    <p-messages [style]="{padding: '10px'}" [value]="currencyMessage"></p-messages>
+    <p-messages [style]="{padding: '10px'}" [value]="productsMessage"></p-messages>
+  </div>
+  <div class="p-col-auto">
+    <div *ngIf="!loading; else loader" class="currency-rate">
+      <div class="currency-rate__title">Курс доллара на сегодня</div>
+      <div [class]="'currency-rate__value ' + getArrowClassName(currencyData.current.changes)">
+        {{ helpers.formatCurrency(currencyData.current.last) }}
+        <div>
+          (изменения за сутки
+          <span class="currency-rate__changes">
+            {{ (currencyData.current.changes > 0 ? '+' :  '') + helpers.formatCurrency(currencyData.current.changes) }}</span>)
+        </div>
+      </div>
+      <div [class]="'currency-rate__range ' + getArrowClassName(currencyData.current.min - currencyData.prev.min)">
+        Минимальное значение за месяц:
+        <span class="currency-rate__range-value">
+          {{ helpers.formatCurrency(currencyData.current.min) }}
+        </span>
+      </div>
+      <div [class]="'currency-rate__range ' + getArrowClassName(currencyData.current.max - currencyData.prev.max)">
+        Максимальное значение за месяц::
+        <span class="currency-rate__range-value">
+          {{ helpers.formatCurrency(currencyData.current.max) }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-col-auto">
+    <div *ngIf="!loading; else loader" class="currency-rate">
+      <div class="currency-rate__title">Курс доллара за прошлый месяц</div>
+      <div [class]="'currency-rate__value ' + getArrowClassName(currencyData.prev.last - currencyData.current.last)">
+        {{ helpers.formatCurrency(currencyData.prev.last) }}
+        <span class="currency-rate__changes">
+          {{ (currencyData.prev.last - currencyData.current.last > 0 ? '+' :  '') + helpers.formatCurrency(currencyData.prev.last - currencyData.current.last) }}
+        </span>
+      </div>
+      <div [class]="'currency-rate__range ' + getArrowClassName(currencyData.prev.min - currencyData.current.min)">
+        Минимальное значение за месяц:
+        <span class="currency-rate__range-value">
+          {{ helpers.formatCurrency(currencyData.prev.min) }}
+        </span>
+      </div>
+      <div [class]="'currency-rate__range ' + getArrowClassName(currencyData.prev.max - currencyData.current.max)">
+        Максимальное значение за месяц::
+        <span class="currency-rate__range-value">
+          {{ helpers.formatCurrency(currencyData.prev.max) }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loader>
+  <app-loader></app-loader>
+</ng-template>

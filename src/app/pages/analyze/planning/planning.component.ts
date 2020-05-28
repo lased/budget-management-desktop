@@ -28,8 +28,8 @@ export class PlanningComponent implements OnInit {
 
   ngOnInit() {
     this.charts = [
-      { label: 'Индикаторы', icon: '', routerLink: ['indicators'] },
-      { label: 'Категории', icon: '', routerLink: ['categories'] },
+      { label: 'Курс доллара', icon: '', routerLink: ['currency-rate'] },
+      { label: 'Категории', icon: '', routerLink: ['categories'] }
     ];
     this.actionsCallback = {
       onCreate: this.create.bind(this),

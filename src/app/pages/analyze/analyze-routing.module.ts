@@ -11,7 +11,7 @@ import { RecordType } from '@core/interfaces';
 import { UsersComponent } from './shared/charts/users/users.component';
 import { PlanningComponent } from './planning/planning.component';
 import { PlanningCategoriesComponent } from './planning/categories/categories.component';
-import { PlanningIndicatorsComponent } from './planning/indicators/indicators.component';
+import { PlanningCurrencyRateComponent } from './planning/currency-rate/currency-rate.component';
 
 const routes: Routes = [
     {
@@ -30,9 +30,9 @@ const routes: Routes = [
                 path: 'planning',
                 component: PlanningComponent,
                 children: [
-                    { path: 'indicators', component: PlanningIndicatorsComponent, data: { periodHidden: true } },
+                    { path: 'currency-rate', component: PlanningCurrencyRateComponent, data: { periodHidden: true } },
                     { path: 'categories', component: PlanningCategoriesComponent, data: { periodHidden: true } },
-                    { path: '**', redirectTo: 'categories', pathMatch: 'full' }
+                    { path: '**', redirectTo: 'currency-rate', pathMatch: 'full' }
                 ]
             },
             {

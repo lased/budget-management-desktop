@@ -11,6 +11,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { MessageModule } from 'primeng/message';
+import { MessagesModule } from 'primeng/messages';
 import { InputTextModule } from 'primeng/inputtext';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -54,6 +55,7 @@ const UIComponents = [
   TabMenuModule,
   DynamicDialogModule,
   MessageModule,
+  MessagesModule,
   InputTextModule,
   SelectButtonModule,
   ListboxModule,
