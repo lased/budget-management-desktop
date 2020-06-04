@@ -225,7 +225,7 @@ export class RecordManageComponent implements OnInit {
       if (res.body) {
         this.form.patchValue({
           date: new Date(qrData.t),
-          amount: (this.form.value.amount || 0) + qrData.s / 100
+          amount: +((this.form.value.amount || 0) + qrData.s / 100).toFixed(2)
         });
         this.parseFnsData(res.body.document.receipt);
       }
